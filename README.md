@@ -1,5 +1,5 @@
 
-# Internship Backend
+# Backend
 
 A backend application developed using FastAPI and PostgreSQL as part of the backend internship setup task.
 
