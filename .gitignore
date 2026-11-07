@@ -1,25 +1,22 @@
-# Python
-__pycache__/
-*.py[cod]
-*.egg-info/
-.pytest_cache/
-
-# Virtual environments
+# Virtual environment
 .venv/
 venv/
-env/
 
-# Environment variables and secrets
-.env
-.env.*
+# Python cache
+__pycache__/
+*.py[cod]
 
-# IDE
-.vscode/
-.idea/
+# Testing
+.pytest_cache/
 
 # Ruff
 .ruff_cache/
 
-# Operating system
+# Environment variables
+.env
+
+# IDE
+.vscode/
+
+# OS files
 .DS_Store
-Thumbs.db

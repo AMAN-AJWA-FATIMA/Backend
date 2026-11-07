@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from pydantic import BaseModel
 
 app = FastAPI(
     title="Internship Backend API",
@@ -14,7 +15,7 @@ def health_check():
 def root():
     return {"message": "Welcome to Internship Backend API"}
 
-from pydantic import BaseModel
+
 
 
 class Student(BaseModel):

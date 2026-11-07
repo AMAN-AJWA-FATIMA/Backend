@@ -1,7 +1,7 @@
 
 # Backend
 
-A backend application developed using FastAPI and PostgreSQL as part of the backend  setup task.
+A backend application developed using FastAPI and PostgreSQL as part of the backend setup task.
 
 ## Tech Stack
 
