@@ -1,5 +1,5 @@
 name: Backend CI
-
+run-name: Backend CI
 on:
   push:
     branches: [main]
