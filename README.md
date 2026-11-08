@@ -357,4 +357,8 @@ This project provided practical experience with:
 - Configuring a GitHub Actions CI workflow.
 - Managing project changes through Git and GitHub.
 
+## 12. Repository
 
+GitHub Repository: https://github.com/AMAN-AJWA-FATIMA/Backend/
+
+API Documentation: http://localhost:8000/docs (available when the application is running).
