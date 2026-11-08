@@ -21,3 +21,8 @@ __pycache__/
 # OS files
 .DS_Store
 .coverage
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
