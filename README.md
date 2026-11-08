@@ -1,30 +1,35 @@
 # Backend
 
-A Python backend project built with **FastAPI, PostgreSQL 16, and Docker Compose**. This project demonstrates REST API development, request and response validation, dependency injection, relational database fundamentals, automated testing, and continuous integration.
+A Python backend project developed using **FastAPI, PostgreSQL 16, and Docker Compose**. It demonstrates the fundamentals of backend development, including REST API design, request validation, dependency injection, relational database operations, containerization, automated testing, and continuous integration using GitHub Actions.
 
-## Technology Stack
+The project focuses on building a structured, maintainable backend environment while gaining practical experience with modern backend development tools and workflows.
 
-- Python 3.12
-- FastAPI and Pydantic
-- PostgreSQL 16
-- Docker and Docker Compose
-- Pytest
-- Ruff
-- GitHub Actions
-- DBeaver Community
+## 1. Technology Stack
 
-## Project Structure
+| Technology | Purpose |
+|---|---|
+| Python 3.12 | Backend programming |
+| FastAPI | REST API development |
+| Pydantic | Request validation and response models |
+| PostgreSQL 16 | Relational database |
+| Docker & Docker Compose | Containerization and service orchestration |
+| DBeaver | PostgreSQL database management |
+| Pytest | Automated testing |
+| Ruff | Linting and code quality |
+| Git & GitHub | Version control and collaboration |
+| GitHub Actions | Continuous integration |
+
+## 2. Project Structure
 
 ```text
 Backend/
-├── app/
-│   ├── __init__.py
-│   └── main.py
-├── tests/
-│   └── test_healthy.py
 ├── .github/
 │   └── workflows/
 │       └── ci.yml
+├── app/
+│   └── main.py
+├── tests/
+│   └── test_healthy.py
 ├── .env.example
 ├── .gitignore
 ├── Dockerfile
@@ -34,32 +39,39 @@ Backend/
 └── README.md
 ```
 
-## Features
+## 3. Implemented Features
 
-- REST API development using FastAPI.
-- Pydantic request and response models.
-- Email validation using `EmailStr`.
-- Path and query parameter handling.
+- FastAPI application with automatic interactive API documentation.
+- Health-check endpoint.
+- REST endpoints for student records.
+- Pydantic request validation using `BaseModel` and `EmailStr`.
+- Response models for structured API responses.
+- Path parameters and query parameters.
 - Dependency injection using `Depends`.
-- HTTP exception handling for missing student records.
-- PostgreSQL 16 service configured through Docker Compose.
-- Automated tests using Pytest.
-- Code quality checks using Ruff.
-- Separate linting and testing jobs in GitHub Actions.
+- Query validation and pagination limits.
+- HTTP exception handling, including 404 responses.
+- PostgreSQL 16 container configured with persistent storage.
+- Automated testing with Pytest.
+- Code quality checks with Ruff.
+- GitHub Actions workflow for continuous integration.
 
-## API Endpoints
+## 4. API Endpoints
+
+The application exposes the following endpoints:
 
 | Method | Endpoint | Description |
 |---|---|---|
 | GET | `/` | Returns a welcome message |
-| GET | `/health` | Returns API health status |
+| GET | `/health` | Checks application health |
 | POST | `/students` | Creates a student record |
 | GET | `/students/{student_id}` | Retrieves a student by ID |
 | GET | `/students` | Lists students with optional filtering and pagination |
 
-### Example: Create a Student
+### Request and Response Example
 
-**Request**
+**POST `/students`**
+
+Request body:
 
 ```json
 {
@@ -70,143 +82,279 @@ Backend/
 }
 ```
 
-**Response**
+Example response:
 
 ```json
 {
-  "student_id": 3,
   "name": "Ali",
   "email": "ali@example.com",
   "age": 20,
-  "department": "CS"
+  "department": "CS",
+  "student_id": 4
 }
 ```
 
-### Example: Retrieve a Student
+### Path Parameter
 
-```http
-GET /students/1
-```
+**GET `/students/1`**
 
-### Example: Filter Students
+Retrieves the student whose ID is `1`. Returns HTTP 404 if the student does not exist.
 
-```http
-GET /students?department=CS&limit=5
-```
+### Query Parameters
 
-The `limit` parameter accepts values from 1 to 100 and defaults to 10.
+**GET `/students?department=CS&limit=5`**
 
-**Note:** Student records are currently stored in an in-memory Python dictionary. They are not persisted in PostgreSQL and are reset when the application restarts.
+- `department`: Optional department filter.
+- `limit`: Maximum number of returned records.
+- Default limit: `10`.
+- Accepted limit range: `1–100`.
 
-## Local Setup
+### Interactive API Documentation
 
-### 1. Clone the repository
+FastAPI automatically generates API documentation:
+
+- Swagger UI: `http://localhost:8000/docs`
+- ReDoc: `http://localhost:8000/redoc`
+
+## 5. Application Data Storage
+
+The student endpoints currently use an in-memory Python dictionary for demonstration purposes.
+
+This implementation demonstrates REST API operations, request validation, response models, and dependency injection. Student records are not currently persisted to PostgreSQL, and in-memory records reset when the application restarts.
+
+PostgreSQL is configured separately and was used for the database practical exercises documented below.
+
+## 6. Local Development Setup
+
+### Prerequisites
+
+- Python 3.12
+- Git
+- PostgreSQL client
+- Docker and Docker Compose
+
+### Clone the Repository
 
 ```bash
 git clone https://github.com/AMAN-AJWA-FATIMA/Backend.git
 cd Backend
 ```
 
-### 2. Create and activate a virtual environment
+### Create and Activate Virtual Environment
 
 ```bash
 python3.12 -m venv .venv
 source .venv/bin/activate
 ```
 
-### 3. Install dependencies
+### Install Dependencies
 
 ```bash
-python -m pip install -r requirements.txt
+pip install -r requirements.txt
 ```
 
-### 4. Run the API
+### Run the Application
 
 ```bash
 fastapi dev app/main.py
 ```
 
-Access the application:
+The application will be available at:
 
-- API: http://127.0.0.1:8000
-- Health check: http://127.0.0.1:8000/health
-- Interactive documentation: http://127.0.0.1:8000/docs
+`http://127.0.0.1:8000`
 
-## Docker Setup
+## 7. Docker Setup
 
-### 1. Configure environment variables
+The project uses Docker Compose to run the FastAPI application and PostgreSQL 16 as separate services.
 
-Create a local `.env` file using the example:
+### Environment Configuration
+
+Create a local `.env` file using the example configuration:
 
 ```bash
 cp .env.example .env
 ```
 
-Set the PostgreSQL username, password, and database name in `.env`.
+Update the values in `.env` with your local database credentials.
 
-Do not commit `.env` or expose real database credentials.
+The `.env` file is excluded from version control. Do not commit actual credentials.
 
-### 2. Build and start services
+### Start the Services
+
+```bash
+docker compose up --build
+```
+
+Run the services in detached mode:
 
 ```bash
 docker compose up -d --build
 ```
 
-### 3. Check service status
+### Verify Running Containers
 
 ```bash
 docker compose ps
 ```
 
-The Compose configuration starts:
+The API service is exposed on port `8000`. PostgreSQL is exposed on host port `5433` and uses container port `5432`.
 
-- **API:** FastAPI application on port `8000`.
-- **Database:** PostgreSQL 16 on host port `5433`, mapped to container port `5432`.
+### Check Application Health
 
-The database has a health check, and the API service waits for the database health check before starting.
+```bash
+curl http://localhost:8000/health
+```
 
-### 4. Stop services
+Expected response:
+
+```json
+{
+  "status": "healthy"
+}
+```
+
+### Stop the Services
 
 ```bash
 docker compose down
 ```
 
-To also remove the database volume and its stored data:
+To remove the PostgreSQL volume and its stored data as well:
 
 ```bash
 docker compose down -v
 ```
 
-Use the volume-removal command carefully because it deletes the database's persisted data.
+**Warning:** The `-v` option deletes the database volume and its contents.
 
-## PostgreSQL Practical
+## 8. PostgreSQL Practical
 
-PostgreSQL was configured as a separate Docker service and explored using DBeaver.
+PostgreSQL 16 was configured through Docker Compose and accessed using DBeaver.
 
-The practical exercises covered:
+The database exercises covered relational database fundamentals, including table creation, primary keys, foreign keys, constraints, joins, and indexes.
 
-- Creating relational tables: `departments` and `students`.
-- Defining primary keys and foreign keys.
-- Applying `NOT NULL`, `UNIQUE`, and `CHECK` constraints.
-- Inserting sample records.
-- Retrieving related data using `INNER JOIN`.
-- Creating and inspecting indexes.
+### Database Tables
 
-### Example JOIN Query
+Two related tables were created:
+
+**departments**
+
+| Column | Description |
+|---|---|
+| `department_id` | Primary key |
+| `department_name` | Department name |
+
+**students**
+
+| Column | Description |
+|---|---|
+| `student_id` | Primary key |
+| `name` | Student name |
+| `email` | Unique student email |
+| `department_id` | Foreign key referencing departments |
+
+### Database Operations Practised
+
+- `CREATE TABLE` — creating relational tables.
+- Primary keys — uniquely identifying records.
+- Foreign keys — establishing relationships between tables.
+- `INSERT` — adding records.
+- `SELECT` — retrieving records.
+- `INNER JOIN` — retrieving related student and department information.
+- `CREATE INDEX` — improving lookup performance.
+
+### JOIN Query
 
 ```sql
 SELECT
-    s.student_id,
     s.name,
     s.email,
     d.department_name
-FROM students s
-INNER JOIN departments d
+FROM students AS s
+INNER JOIN departments AS d
     ON s.department_id = d.department_id;
 ```
 
+The query successfully retrieved student names, email addresses, and their associated department names.
+
 ### Indexes Verified
 
-- `students_pkey` — primary key index.
-- `students_email_key` — unique email index.
-- `idx_students_department_id` —
+| Index | Purpose |
+|---|---|
+| `students_pkey` | Primary key index on `student_id` |
+| `students_email_key` | Unique index on `email` |
+| `idx_students_department_id` | Index on `department_id` |
+
+## 9. Testing and Code Quality
+
+### Automated Tests
+
+Pytest is used to verify application behavior.
+
+Run the test suite:
+
+```bash
+pytest -v
+```
+
+The health-check test verifies that:
+
+- The `/health` endpoint responds successfully.
+- The returned status is HTTP 200.
+- The response contains `{"status": "healthy"}`.
+
+### Code Quality
+
+Ruff is used for linting and import checks.
+
+```bash
+ruff check .
+```
+
+### Configuration Validation
+
+Docker Compose configuration can be validated using:
+
+```bash
+docker compose config -q
+```
+
+## 10. Continuous Integration
+
+GitHub Actions is configured to run automated checks when code is pushed to the `main` branch or a pull request targets it.
+
+The workflow is located at:
+
+`.github/workflows/ci.yml`
+
+The CI pipeline uses Python 3.12 and installs the project dependencies before running:
+
+1. **Ruff Linting** — checks the code for linting and import issues.
+2. **Pytest** — executes the automated test suite.
+
+Workflow results can be viewed under the repository's **Actions** tab.
+
+## 11. Learning Outcomes
+
+This project provided practical experience with:
+
+- Setting up a Python backend development environment.
+- Building REST APIs using FastAPI.
+- Working with Pydantic models and request validation.
+- Understanding path parameters, query parameters, and dependency injection.
+- Creating relational database tables and defining relationships.
+- Performing SQL queries, joins, and index verification.
+- Running services through Docker Compose.
+- Writing automated tests with Pytest.
+- Applying linting standards with Ruff.
+- Configuring a GitHub Actions CI workflow.
+- Managing project changes through Git and GitHub.
+
+## 12. Repository
+
+**GitHub Repository:** [AMAN-AJWA-FATIMA/Backend](https://github.com/AMAN-AJWA-FATIMA/Backend)
+
+**API Documentation:** `http://localhost:8000/docs` (available when the application is running).
+
+---
+
