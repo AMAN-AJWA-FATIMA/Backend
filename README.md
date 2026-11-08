@@ -30,7 +30,6 @@ Backend/
 │   └── main.py
 ├── tests/
 │   └── test_healthy.py
-├── .env.example
 ├── .gitignore
 ├── Dockerfile
 ├── docker-compose.yml
@@ -169,15 +168,23 @@ The project uses Docker Compose to run the FastAPI application and PostgreSQL 16
 
 ### Environment Configuration
 
-Create a local `.env` file using the example configuration:
+Docker Compose reads PostgreSQL credentials from a local `.env` file.
+
+Create the file in the project root:
 
 ```bash
-cp .env.example .env
+nano .env
 ```
 
-Update the values in `.env` with your local database credentials.
+Add the following configuration, replacing the example password with your own:
 
-The `.env` file is excluded from version control. Do not commit actual credentials.
+```env
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=your_secure_password
+POSTGRES_DB=backend_db
+```
+
+Save the file. The `.env` file is excluded from version control through `.gitignore`. Do not commit actual database credentials.
 
 ### Start the Services
 
@@ -352,9 +359,4 @@ This project provided practical experience with:
 
 ## 12. Repository
 
-**GitHub Repository:** [AMAN-AJWA-FATIMA/Backend](https://github.com/AMAN-AJWA-FATIMA/Backend)
-
-**API Documentation:** `http://localhost:8000/docs` (available when the application is running).
-
----
-
+**GitHub Repository:** [AMAN-AJWA-FATIMA/Backend](https://github.com/AMAN
