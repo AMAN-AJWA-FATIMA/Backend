@@ -357,6 +357,4 @@ This project provided practical experience with:
 - Configuring a GitHub Actions CI workflow.
 - Managing project changes through Git and GitHub.
 
-## 12. Repository
 
-**GitHub Repository:** [AMAN-AJWA-FATIMA/Backend](https://github.com/AMAN
