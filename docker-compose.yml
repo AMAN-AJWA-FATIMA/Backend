@@ -4,6 +4,12 @@ services:
     container_name: backend_api
     ports:
       - "8000:8000"
+    environment:
+      DB_HOST: db
+      DB_PORT: "5432"
+      DB_NAME: ${DB_NAME:?DB_NAME must be configured in .env}
+      DB_USER: ${DB_USER:?DB_USER must be configured in .env}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD must be configured in .env}
     depends_on:
       db:
         condition: service_healthy
@@ -17,6 +23,8 @@ services:
       - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d:ro
+      - ./docker/postgres/sql:/docker/postgres/sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 5s
