@@ -1,23 +1,30 @@
-# API skeleton with secure login and roles
+# Backend — # API Skeleton with Secure Login and Roles
 
-A Python backend project developed using **FastAPI, PostgreSQL 16, and Docker Compose**. It demonstrates the fundamentals of backend development, including REST API design, request validation, dependency injection, relational database operations, containerization, automated testing, and continuous integration using GitHub Actions.
+A containerized backend application built with **Python 3.12, FastAPI, PostgreSQL 16, SQLAlchemy 2, and Docker Compose**.
 
-The project focuses on building a structured, maintainable backend environment while gaining practical experience with modern backend development tools and workflows.
+The project demonstrates REST API development, relational database integration, request validation, authentication, role-based authorization, database migrations, automated testing, and continuous integration.
+
+It includes a task-management API and an authentication system with secure password hashing, short-lived access tokens, rotating refresh tokens, and role-protected endpoints.
 
 ## 1. Technology Stack
 
 | Technology | Purpose |
 |---|---|
-| Python 3.12 | Backend programming |
-| FastAPI | REST API development |
-| Pydantic | Request validation and response models |
+| Python 3.12 | Backend programming language |
+| FastAPI | REST API framework |
+| Pydantic | Request validation and response schemas |
+| SQLAlchemy 2 | ORM and database operations |
 | PostgreSQL 16 | Relational database |
+| Alembic | Database schema migrations |
+| Argon2id | Password hashing |
+| PyJWT | JWT access-token generation and validation |
 | Docker & Docker Compose | Containerization and service orchestration |
-| DBeaver | PostgreSQL database management |
 | Pytest | Automated testing |
+| HTTPX | API testing |
 | Ruff | Linting and code quality |
-| Git & GitHub | Version control and collaboration |
+| Git & GitHub | Version control |
 | GitHub Actions | Continuous integration |
+| DBeaver | Database administration and inspection |
 
 ## 2. Project Structure
 
@@ -26,11 +33,45 @@ Backend/
 ├── .github/
 │   └── workflows/
 │       └── ci.yml
+├── alembic/
+│   ├── versions/
+│   │   └── 20261113_01_authentication.py
+│   ├── env.py
+│   └── script.py.mako
 ├── app/
+│   ├── core/
+│   │   ├── config.py
+│   │   ├── database.py
+│   │   └── security.py
+│   ├── dependencies/
+│   │   ├── authentication.py
+│   │   └── permissions.py
+│   ├── models/
+│   │   ├── refresh_token.py
+│   │   └── user.py
+│   ├── routers/
+│   │   ├── auth.py
+│   │   ├── authorization_demo.py
+│   │   ├── tasks.py
+│   │   └── users.py
+│   ├── schemas/
+│   │   ├── auth.py
+│   │   ├── task.py
+│   │   └── user.py
 │   └── main.py
+├── scripts/
+│   └── create_admin.py
 ├── tests/
-│   └── test_healthy.py
+│   ├── conftest.py
+│   ├── test_auth.py
+│   ├── test_healthy.py
+│   ├── test_tasks.py
+│   └── test_users.py
+├── web/
+│   └── index.html
+├── .env.example
 ├── .gitignore
+├── alembic.ini
 ├── Dockerfile
 ├── docker-compose.yml
 ├── pyproject.toml
@@ -38,99 +79,414 @@ Backend/
 └── README.md
 ```
 
-## 3. Implemented Features
+## 3. Core Features
 
-- FastAPI application with automatic interactive API documentation.
-- Health-check endpoint.
-- REST endpoints for student records.
-- Pydantic request validation using `BaseModel` and `EmailStr`.
-- Response models for structured API responses.
-- Path parameters and query parameters.
-- Dependency injection using `Depends`.
-- Query validation and pagination limits.
-- HTTP exception handling, including 404 responses.
-- PostgreSQL 16 container configured with persistent storage.
-- Automated testing with Pytest.
-- Code quality checks with Ruff.
-- GitHub Actions workflow for continuous integration.
+### Task Management API
 
-## 4. API Endpoints
+The existing API provides operations for managing users and tasks.
 
-The application exposes the following endpoints:
+Implemented capabilities include:
+
+- Creating and retrieving user records.
+- Listing users with pagination.
+- Validating email addresses.
+- Creating, retrieving, updating, and deleting tasks.
+- Handling nonexistent records and invalid requests.
+- Filtering and paginating task results.
+- Managing database relationships and constraints.
+
+The task and user endpoints use the application's existing database implementation.
+
+### Authentication
+
+The authentication module provides:
+
+- User registration.
+- Login with email and password.
+- JWT access-token issuance.
+- Refresh-token rotation.
+- Refresh-token revocation on logout.
+- Authenticated user profile retrieval.
+- Protected endpoints using HTTP Bearer authentication.
+
+### Role-Based Authorization
+
+The application supports three roles:
+
+| Role | Description |
+|---|---|
+| `student` | Standard student account |
+| `parent` | Parent account |
+| `admin` | Administrative account |
+
+A reusable `require_roles()` dependency enforces endpoint permissions.
+
+Example authorization rules:
+
+| Endpoint | Allowed roles |
+|---|---|
+| `GET /admin/dashboard` | admin |
+| `GET /parent/dashboard` | parent, admin |
+| `GET /auth/me` | Any authenticated user |
+
+Public registration permits only `student` and `parent` roles. Administrative accounts must be provisioned separately.
+
+## 4. Authentication Architecture
+
+### Password Security
+
+Passwords are hashed using **Argon2id** through `argon2-cffi`.
+
+- Plaintext passwords are never stored in the database.
+- Password verification uses the stored Argon2 hash.
+- Invalid credentials return HTTP 401.
+- Public registration validates password length.
+- Administrative account creation uses interactive password entry.
+
+### Access Tokens
+
+Access tokens are signed JWTs using HS256.
+
+| Property | Configuration |
+|---|---|
+| Token type | JWT |
+| Signing algorithm | HS256 |
+| Lifetime | 15 minutes |
+| Authentication scheme | Bearer |
+| Required claims | `sub`, `iat`, `exp`, `type` |
+| Token identifier | `jti` |
+
+Protected endpoints validate the token signature, expiration, token type, and associated user.
+
+### Refresh Tokens
+
+Refresh tokens are opaque, cryptographically random values.
+
+| Property | Configuration |
+|---|---|
+| Token lifetime | 14 days |
+| Generation | Python `secrets` |
+| Database storage | SHA-256 digest |
+| Rotation | Enabled |
+| Revocation | Supported |
+| User relationship | Foreign key to `users` |
+
+The application stores only the SHA-256 digest of each refresh token, not its original value.
+
+When a refresh token is used:
+
+1. The submitted token is hashed.
+2. Its corresponding database record is retrieved.
+3. The application checks whether it exists, has expired, or has been revoked.
+4. The old token is revoked.
+5. A new access token and refresh token are issued.
+6. The new refresh-token digest is stored.
+
+Logout revokes the submitted refresh token. A revoked or previously rotated refresh token cannot be used again.
+
+### Authentication Flow
+
+```text
+Registration
+    |
+    v
+User account created
+    |
+    v
+Login with email and password
+    |
+    v
+Password verification (Argon2id)
+    |
+    v
+Access token + Refresh token
+    |
+    +--------------------------+
+    |                          |
+    v                          v
+Access protected API       Refresh access
+    |                          |
+    v                          v
+Validate JWT              Validate refresh token
+    |                          |
+    v                          v
+Authorize user            Revoke old token
+    |                          |
+    v                          v
+Return response           Issue new token pair
+                               |
+                               v
+                         Continue session
+
+Logout
+    |
+    v
+Revoke refresh token
+    |
+    v
+Further refresh attempts rejected
+```
+
+**Note:** Revoking a refresh token prevents future token renewal. An already issued access JWT remains valid until its expiration because access-token revocation through a denylist is not currently implemented.
+
+## 5. API Reference
+
+The following endpoints are implemented by the application.
+
+### General Endpoints
 
 | Method | Endpoint | Description |
 |---|---|---|
-| GET | `/` | Returns a welcome message |
-| GET | `/health` | Checks application health |
-| POST | `/students` | Creates a student record |
-| GET | `/students/{student_id}` | Retrieves a student by ID |
-| GET | `/students` | Lists students with optional filtering and pagination |
+| GET | `/` | Serves the web interface |
+| GET | `/health` | Application health check |
 
-### Request and Response Example
+### Authentication Endpoints
 
-**POST `/students`**
+| Method | Endpoint | Description | Authentication |
+|---|---|---|---|
+| POST | `/auth/register` | Register a student or parent | Public |
+| POST | `/auth/login` | Authenticate and issue tokens | Public |
+| POST | `/auth/refresh` | Rotate refresh token and issue new tokens | Refresh token |
+| POST | `/auth/logout` | Revoke refresh token | Refresh token |
+| GET | `/auth/me` | Retrieve authenticated user profile | Bearer token |
 
-Request body:
+### Authorization Demonstration Endpoints
+
+| Method | Endpoint | Allowed roles |
+|---|---|---|
+| GET | `/admin/dashboard` | admin |
+| GET | `/parent/dashboard` | parent, admin |
+
+### User and Task Endpoints
+
+The application also exposes the existing user and task-management routes:
+
+- `/users`
+- `/users/{user_id}`
+- `/tasks`
+- `/tasks/{task_id}`
+
+Consult Swagger UI for the exact request schemas, supported methods, query parameters, and response models.
+
+## 6. Request Examples
+
+### Register a User
+
+**POST `/auth/register`**
 
 ```json
 {
-  "name": "Ali",
+  "full_name": "Ali Ahmed",
   "email": "ali@example.com",
-  "age": 20,
-  "department": "CS"
+  "password": "StrongPassword123!",
+  "role": "student"
 }
 ```
 
-Example response:
+A successful registration returns HTTP 201 and the created user profile.
+
+The public registration schema accepts `student` and `parent` roles only.
+
+### Login
+
+**POST `/auth/login`**
 
 ```json
 {
-  "name": "Ali",
   "email": "ali@example.com",
-  "age": 20,
-  "department": "CS",
-  "student_id": 4
+  "password": "StrongPassword123!"
 }
 ```
 
-### Path Parameter
+A successful login returns HTTP 200.
 
-**GET `/students/1`**
+Example response structure:
 
-Retrieves the student whose ID is `1`. Returns HTTP 404 if the student does not exist.
+```json
+{
+  "access_token": "<access-token>",
+  "token_type": "bearer",
+  "expires_in": 900,
+  "refresh_token": "<refresh-token>",
+  "refresh_expires_in": 1209600
+}
+```
 
-### Query Parameters
+The example values represent the configured token lifetimes. Actual token values are generated dynamically.
 
-**GET `/students?department=CS&limit=5`**
+### Access the Current User
 
-- `department`: Optional department filter.
-- `limit`: Maximum number of returned records.
-- Default limit: `10`.
-- Accepted limit range: `1–100`.
+**GET `/auth/me`**
 
-### Interactive API Documentation
+Include the access token in the request header:
 
-FastAPI automatically generates API documentation:
+```http
+Authorization: Bearer <access-token>
+```
 
-- Swagger UI: `http://localhost:8000/docs`
-- ReDoc: `http://localhost:8000/redoc`
+Returns the authenticated user's profile.
 
-## 5. Application Data Storage
+### Refresh Tokens
 
-The student endpoints currently use an in-memory Python dictionary for demonstration purposes.
+**POST `/auth/refresh`**
 
-This implementation demonstrates REST API operations, request validation, response models, and dependency injection. Student records are not currently persisted to PostgreSQL, and in-memory records reset when the application restarts.
+```json
+{
+  "refresh_token": "<refresh-token>"
+}
+```
 
-PostgreSQL is configured separately and was used for the database practical exercises documented below.
+Returns a new access token and refresh token. The previous refresh token is revoked.
 
-## 6. Local Development Setup
+### Logout
+
+**POST `/auth/logout`**
+
+```json
+{
+  "refresh_token": "<refresh-token>"
+}
+```
+
+A successful logout returns HTTP 204 No Content.
+
+Subsequent attempts to refresh using the revoked token return HTTP 401.
+
+### Authorization
+
+**GET `/admin/dashboard`**
+
+A valid student access token receives HTTP 403 Forbidden.
+
+An authenticated admin receives access.
+
+**GET `/parent/dashboard`**
+
+Parent and admin accounts are permitted to access this endpoint.
+
+## 7. Database Design
+
+The application uses PostgreSQL 16 and SQLAlchemy 2.
+
+The authentication implementation extends the existing `users` table and introduces a separate `refresh_tokens` table.
+
+### Users Table
+
+Authentication-related fields:
+
+| Column | Purpose |
+|---|---|
+| `id` | Primary key |
+| `full_name` | User's full name |
+| `email` | User email address |
+| `password_hash` | Argon2id password hash |
+| `role` | User authorization role |
+| `created_at` | Account creation timestamp |
+
+The existing user fields and relationships are retained.
+
+`password_hash` is nullable to preserve legacy user records created before authentication was introduced. Those accounts cannot authenticate until credentials are provisioned.
+
+### Refresh Tokens Table
+
+| Column | Purpose |
+|---|---|
+| `id` | Primary key |
+| `user_id` | Foreign key referencing users |
+| `token_hash` | SHA-256 digest of refresh token |
+| `expires_at` | Token expiration timestamp |
+| `revoked_at` | Revocation timestamp; nullable |
+| `created_at` | Token creation timestamp |
+
+Database constraints and indexes include:
+
+- Primary key on `id`.
+- Foreign key from `user_id` to `users.id`.
+- Unique constraint on `token_hash`.
+- Index on `user_id`.
+
+## 8. Database Migrations with Alembic
+
+Alembic manages database schema changes.
+
+The authentication migration:
+
+`alembic/versions/20261113_01_authentication.py`
+
+It performs the following operations:
+
+1. Adds `password_hash` to the existing users table.
+2. Adds a `role` column with a default of `student`.
+3. Creates the `refresh_tokens` table.
+4. Adds the required foreign key and unique constraint.
+5. Creates an index on `refresh_tokens.user_id`.
+
+The migration preserves existing user records and does not require recreating the database.
+
+### Apply Migrations
+
+```bash
+alembic upgrade head
+```
+
+### Check Migration Status
+
+```bash
+alembic current
+```
+
+### View Migration History
+
+```bash
+alembic history
+```
+
+The Docker API container automatically applies migrations before starting the application.
+
+## 9. Environment Configuration and Secrets
+
+Sensitive configuration is provided through environment variables.
+
+Create a local `.env` file in the repository root using `.env.example` as a template.
+
+```bash
+cp .env.example .env
+```
+
+Edit the local file:
+
+```bash
+nano .env
+```
+
+Configure the following variables with appropriate local values:
+
+```env
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=replace_with_a_strong_local_password
+POSTGRES_DB=task_management_db
+
+DB_HOST=localhost
+DB_PORT=5433
+DB_NAME=task_management_db
+DB_USER=task_management_app
+DB_PASSWORD=replace_with_a_strong_local_password
+
+JWT_SECRET_KEY=replace_with_a_long_random_secret
+ACCESS_TOKEN_EXPIRE_MINUTES=15
+REFRESH_TOKEN_EXPIRE_DAYS=14
+```
+
+The API container connects to PostgreSQL using the Docker service hostname `db` and container port `5432`. The `DB_HOST` and `DB_PORT` values above are for local execution outside Docker.
+
+## 10. Running the Project with Docker Compose
 
 ### Prerequisites
 
 - Python 3.12
 - Git
-- PostgreSQL client
-- Docker and Docker Compose
+- Docker Engine
+- Docker Compose
 
 ### Clone the Repository
 
@@ -139,77 +495,46 @@ git clone https://github.com/AMAN-AJWA-FATIMA/Backend.git
 cd Backend
 ```
 
-### Create and Activate Virtual Environment
+### Configure Environment Variables
 
 ```bash
-python3.12 -m venv .venv
-source .venv/bin/activate
-```
-
-### Install Dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
-### Run the Application
-
-```bash
-fastapi dev app/main.py
-```
-
-The application will be available at:
-
-`http://127.0.0.1:8000`
-
-## 7. Docker Setup
-
-The project uses Docker Compose to run the FastAPI application and PostgreSQL 16 as separate services.
-
-### Environment Configuration
-
-Docker Compose reads PostgreSQL credentials from a local `.env` file.
-
-Create the file in the project root:
-
-```bash
+cp .env.example .env
 nano .env
 ```
 
-Add the following configuration, replacing the example password with your own:
+Replace placeholder values with valid local credentials. Use the same PostgreSQL password for `POSTGRES_PASSWORD` and `DB_PASSWORD` when using the provided initialization configuration.
 
-```env
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=your_secure_password
-POSTGRES_DB=backend_db
-```
-
-Save the file. The `.env` file is excluded from version control through `.gitignore`. Do not commit actual database credentials.
-
-### Start the Services
+### Start the Application
 
 ```bash
 docker compose up --build
 ```
 
-Run the services in detached mode:
+To run in the background:
 
 ```bash
 docker compose up -d --build
 ```
 
-### Verify Running Containers
+Docker Compose starts:
+
+| Service | Container | Port |
+|---|---|---|
+| FastAPI | `backend_api` | `8000` |
+| PostgreSQL | `backend_db` | `5433` on host, `5432` in container |
+
+The API service waits for the database health check before starting. It applies Alembic migrations and then launches Uvicorn.
+
+### Verify Containers
 
 ```bash
 docker compose ps
 ```
 
-The API service is exposed on port `8000`. PostgreSQL is exposed on host port `5433` and uses container port `5432`.
-
-### Check Application Health
+### Check API Health
 
 ```bash
-curl http://localhost:8000/health
+curl -i http://localhost:8000/health
 ```
 
 Expected response:
@@ -220,206 +545,211 @@ Expected response:
 }
 ```
 
-### Stop the Services
+### Open the Application
+
+- Web interface: http://localhost:8000/
+- Swagger UI: http://localhost:8000/docs
+- ReDoc: http://localhost:8000/redoc
+- Health endpoint: http://localhost:8000/health
+
+### Stop the Application
 
 ```bash
 docker compose down
 ```
 
-To remove the PostgreSQL volume and its stored data as well:
+This stops and removes the containers while retaining the named PostgreSQL volume.
+
+**Important:** Avoid `docker compose down -v` unless you intentionally want to delete the PostgreSQL volume and all database data stored in it.
+
+## 11. Running Locally Without Docker
+
+Docker Compose is the recommended way to run the complete application.
+
+For local Python development, first ensure PostgreSQL is available and the environment variables are configured for the local database connection.
+
+### Create a Virtual Environment
 
 ```bash
-docker compose down -v
+python3.12 -m venv .venv
+source .venv/bin/activate
 ```
 
-**Warning:** The `-v` option deletes the database volume and its contents.
+### Install Dependencies
 
-## 8. PostgreSQL Practical
-
-PostgreSQL 16 was configured through Docker Compose and accessed using DBeaver.
-
-The database exercises covered relational database fundamentals, including table creation, primary keys, foreign keys, constraints, joins, and indexes.
-
-### Database Tables
-
-Two related tables were created:
-
-**departments**
-
-| Column | Description |
-|---|---|
-| `department_id` | Primary key |
-| `department_name` | Department name |
-
-**students**
-
-| Column | Description |
-|---|---|
-| `student_id` | Primary key |
-| `name` | Student name |
-| `email` | Unique student email |
-| `department_id` | Foreign key referencing departments |
-
-### Database Operations Practised
-
-- `CREATE TABLE` — creating relational tables.
-- Primary keys — uniquely identifying records.
-- Foreign keys — establishing relationships between tables.
-- `INSERT` — adding records.
-- `SELECT` — retrieving records.
-- `INNER JOIN` — retrieving related student and department information.
-- `CREATE INDEX` — improving lookup performance.
-
-### JOIN Query
-
-```sql
-SELECT
-    s.name,
-    s.email,
-    d.department_name
-FROM students AS s
-INNER JOIN departments AS d
-    ON s.department_id = d.department_id;
+```bash
+python -m pip install --upgrade pip
+pip install -r requirements.txt
 ```
 
-The query successfully retrieved student names, email addresses, and their associated department names.
+### Apply Database Migrations
 
-### Indexes Verified
+```bash
+alembic upgrade head
+```
 
-| Index | Purpose |
-|---|---|
-| `students_pkey` | Primary key index on `student_id` |
-| `students_email_key` | Unique index on `email` |
-| `idx_students_department_id` | Index on `department_id` |
+### Start FastAPI
 
-## 9. Testing and Code Quality
+```bash
+uvicorn app.main:app --reload
+```
 
-### Automated Tests
+The application will be available at:
 
-Pytest is used to verify application behavior.
+`http://127.0.0.1:8000`
 
-Run the test suite:
+## 12. Administrator Account Provisioning
+
+Administrator accounts cannot be created through public registration.
+
+Use the dedicated CLI script:
+
+```bash
+python -m scripts.create_admin
+```
+
+The script:
+
+1. Requests the administrator's full name.
+2. Requests an email address.
+3. Prompts for a password without displaying it.
+4. Requires password confirmation.
+5. Enforces a minimum password length of 12 characters.
+6. Hashes the password using Argon2id.
+7. Creates an account with the `admin` role.
+
+Ensure database connectivity and migrations are ready before running the command.
+
+## 13. Web Interface
+
+A simple web interface is provided in `web/index.html`.
+
+It demonstrates:
+
+- User registration.
+- User login.
+- Accessing the authenticated profile.
+- Refreshing access tokens.
+- Logging out.
+- Testing role-protected endpoints.
+
+Tokens are held in page memory rather than browser local storage or session storage. Reloading the page requires logging in again.
+
+The interface is intended as an integration demonstration, not a production-ready frontend.
+
+## 14. Testing
+
+The project uses Pytest and HTTPX to validate API behavior.
+
+Run the complete test suite:
 
 ```bash
 pytest -v
 ```
 
-The health-check test verifies that:
+### Authentication Test Coverage
 
-- The `/health` endpoint responds successfully.
-- The returned status is HTTP 200.
-- The response contains `{"status": "healthy"}`.
+The authentication tests verify:
 
-### Code Quality
+| Test | Expected result |
+|---|---|
+| User registration and login | Successful registration and authentication |
+| Incorrect password | HTTP 401 |
+| Authenticated profile | HTTP 200 |
+| Expired access token | HTTP 401 |
+| Refresh-token rotation | New token issued |
+| Reuse of rotated token | HTTP 401 |
+| Logout revocation | HTTP 204 |
+| Reuse of revoked token | HTTP 401 |
+| Student accessing admin endpoint | HTTP 403 |
+| Parent accessing parent endpoint | HTTP 200 |
+| Public admin registration attempt | HTTP 422 |
+
+The existing health, user, and task tests are also retained.
+
+### Latest Local Test Results
+
+The latest verified local run reported:
+
+- **26 tests passed**
+- No test failures.
+- Ruff linting passed.
+
+These results describe the local test run; the GitHub Actions result should be checked separately after pushing the changes.
+
+## 15. Code Quality
 
 Ruff is used for linting and import checks.
+
+Run:
 
 ```bash
 ruff check .
 ```
 
-### Configuration Validation
+Format the project:
 
-Docker Compose configuration can be validated using:
+```bash
+ruff format .
+```
+
+Validate Docker Compose configuration:
 
 ```bash
 docker compose config -q
 ```
 
-## 10. Continuous Integration
+Check the current migration:
 
-GitHub Actions is configured to run automated checks when code is pushed to the `main` branch or a pull request targets it.
+```bash
+docker compose exec api alembic current
+```
 
-The workflow is located at:
+## 16. Continuous Integration
+
+GitHub Actions runs automated checks for pushes to `main` and pull requests targeting `main`.
+
+Workflow location:
 
 `.github/workflows/ci.yml`
 
-The CI pipeline uses Python 3.12 and installs the project dependencies before running:
+The pipeline uses Python 3.12 and contains two jobs:
 
-1. **Ruff Linting** — checks the code for linting and import issues.
-2. **Pytest** — executes the automated test suite.
+### Ruff Linting
 
-Workflow results can be viewed under the repository's **Actions** tab.
+- Checks out the repository.
+- Sets up Python 3.12.
+- Installs dependencies.
+- Runs `ruff check .`.
 
-## 11. Learning Outcomes
+### Pytest
 
-This project provided practical experience with:
+- Checks out the repository.
+- Sets up Python 3.12.
+- Installs dependencies.
+- Runs `pytest -v`.
 
-- Setting up a Python backend development environment.
-- Building REST APIs using FastAPI.
-- Working with Pydantic models and request validation.
-- Understanding path parameters, query parameters, and dependency injection.
-- Creating relational database tables and defining relationships.
-- Performing SQL queries, joins, and index verification.
-- Running services through Docker Compose.
-- Writing automated tests with Pytest.
-- Applying linting standards with Ruff.
-- Configuring a GitHub Actions CI workflow.
-- Managing project changes through Git and GitHub.
+Workflow execution results are available under the repository's **Actions** tab.
 
-## 12. Repository
+## 17. Known Limitations
 
-GitHub Repository: https://github.com/AMAN-AJWA-FATIMA/Backend/
+- Existing legacy user accounts have nullable `password_hash` values. They require a separate credential-enrollment or password-reset process before they can authenticate.
+- Access JWTs are not invalidated immediately on logout; they remain valid until expiration. Refresh-token revocation prevents renewal.
+- The web interface is a basic demonstration and is not intended for production deployment.
+- The API does not currently implement email verification, password-reset workflows, or rate limiting.
+- The local CI workflow runs linting and automated tests; it does not currently build and run the Docker services.
 
-API Documentation: http://localhost:8000/docs (available when the application is running).
+## 18. Repository and Documentation
 
-## Authentication and role-based access
+**GitHub Repository:**  
+https://github.com/AMAN-AJWA-FATIMA/Backend
 
-The API includes registration, login, refresh-token rotation, logout, and the
-authenticated profile endpoint. Passwords are hashed with Argon2id. Access
-JWTs expire after 15 minutes. Refresh tokens are random opaque values; only
-their SHA-256 digests are stored in PostgreSQL. Refresh tokens expire after
-14 days and are revoked on rotation or logout.
+**API Documentation:**  
+http://localhost:8000/docs
 
-Roles are `student`, `parent`, and `admin`. Public registration permits only
-`student` and `parent`; admin accounts must be provisioned through a controlled
-administrative process. Example protected endpoints are `/admin/dashboard`
-and `/parent/dashboard`.
+**Alternative API Documentation:**  
+http://localhost:8000/redoc
 
-### Environment configuration
+The documentation endpoints are available when the application is running.
 
-Add `JWT_SECRET_KEY` to `.env`. The setup script creates a random local value
-if it is missing. Never commit `.env` or share its contents. `.env.example`
-contains placeholders only.
-
-### Run with Docker
-
-```bash
-docker compose up --build
-```
-
-The API container applies Alembic migrations before starting Uvicorn.
-
-- Web interface: http://localhost:8000/
-- Swagger UI: http://localhost:8000/docs
-- Health check: http://localhost:8000/health
-
-### Local migrations
-
-```bash
-alembic upgrade head
-alembic current
-```
-
-### Authentication endpoints
-
-- `POST /auth/register`
-- `POST /auth/login`
-- `POST /auth/refresh`
-- `POST /auth/logout`
-- `GET /auth/me` (Bearer access token)
-
-Refresh and logout request bodies contain `{"refresh_token": "..."}`.
-Login returns an access token and a refresh token. The browser demonstration
-keeps tokens in page memory only; refreshing the page requires logging in again.
-
-### Provision an administrator
-
-Do not register an admin through the public endpoint. From the repository root, run `python -m scripts.create_admin` after dependencies and database migrations are ready. The password is entered interactively and stored only as an Argon2id hash.
-
-### Legacy accounts
-
-The migration preserves existing user rows and adds a nullable `password_hash`
-for those legacy rows. Such accounts cannot log in until a password-reset or
-credential-enrollment process is implemented. Newly registered accounts always
-receive an Argon2id password hash.
+---
