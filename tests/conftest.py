@@ -13,10 +13,11 @@ os.environ.setdefault("DB_PORT", "5433")
 os.environ.setdefault("DB_NAME", "test_db")
 os.environ.setdefault("DB_USER", "test_user")
 os.environ.setdefault("DB_PASSWORD", "test_password")
+os.environ.setdefault("JWT_SECRET_KEY", "test-only-secret-key-not-for-production")
 
 from app.core.database import Base, get_db  # noqa: E402
 from app.main import app  # noqa: E402
-from app.models import Task, User  # noqa: E402, F401
+from app.models import RefreshToken, Task, User  # noqa: E402, F401
 
 
 @pytest.fixture

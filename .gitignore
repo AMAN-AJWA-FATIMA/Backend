@@ -12,9 +12,6 @@ __pycache__/
 # Ruff
 .ruff_cache/
 
-# Environment variables
-.env
-
 # IDE
 .vscode/
 
@@ -26,3 +23,10 @@ __pycache__/
 .env
 .env.*
 !.env.example
+
+# Local Postman workspace metadata
+.postman/
+postman/globals/
+
+# Local setup helper
+/setup_authentication.sh

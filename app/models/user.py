@@ -20,6 +20,15 @@ class User(Base):
         unique=True,
         nullable=False,
     )
+    # Nullable only to preserve legacy records created before authentication.
+    # New registrations always provide an Argon2id hash.
+    password_hash: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    role: Mapped[str] = mapped_column(
+        String(20),
+        nullable=False,
+        default="student",
+        server_default="student",
+    )
     created_at: Mapped[datetime | None] = mapped_column(
         DateTime,
         server_default=func.current_timestamp(),

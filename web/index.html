@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Task Management | Account Portal</title>
+  <script>
+    (function () {
+      var t = null;
+      try { t = localStorage.getItem("theme"); } catch (e) {}
+      if (t !== "light" && t !== "dark") {
+        t = window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      }
+      document.documentElement.setAttribute("data-theme", t);
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #eef3ee;
+      --surface: #fbfdfb;
+      --ink: #1f2a24;
+      --muted: #66756c;
+      --line: #d9e3db;
+      --plum: #7a2e6b;
+      --plum-dark: #5f2253;
+      --sage: #2f6f5e;
+      --blush: #f3d9e6;
+      --mint: #cfe8dc;
+      --code-bg: #2a1a27;
+      --code-ink: #f4e6ef;
+      --heading: #5f2253;
+      --plum-hover: #5f2253;
+      --field: #ffffff;
+      --card-shadow: 0 1px 0 #fff inset, 0 18px 40px -26px rgba(95, 34, 83, .35);
+      font-family: "DM Sans", system-ui, sans-serif;
+    }
+    :root[data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #141a16;
+      --surface: #1d2520;
+      --ink: #e7efe9;
+      --muted: #9aaba1;
+      --line: #2f3b34;
+      --plum: #a8478f;
+      --plum-hover: #bd58a5;
+      --sage: #7fc4ad;
+      --blush: #3a2236;
+      --mint: #1f3a31;
+      --code-bg: #0e0b0e;
+      --heading: #eab4dc;
+      --field: #151c18;
+      --card-shadow: 0 1px 0 rgba(255,255,255,.04) inset, 0 18px 40px -26px rgba(0, 0, 0, .8);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; color: var(--ink); min-height: 100vh;
+      background:
+        radial-gradient(520px 380px at 8% 6%, var(--blush), transparent 70%),
+        radial-gradient(560px 420px at 94% 12%, var(--mint), transparent 70%),
+        var(--bg);
+      background-attachment: fixed;
+    }
+    main { max-width: 800px; margin: 0 auto; padding: 56px 24px 64px; }
+    h1 {
+      font-family: "Fraunces", Georgia, serif; font-weight: 600;
+      font-size: clamp(2.2rem, 6vw, 3.2rem); letter-spacing: -0.02em;
+      margin: 0 0 8px; color: var(--heading);
+    }
+    h2 { font-family: "Fraunces", Georgia, serif; font-weight: 500; font-size: 1.35rem; margin: 0 0 6px; }
+    .muted { color: var(--muted); margin: 0 0 18px; max-width: 52ch; line-height: 1.55; }
+
+    #status {
+      min-height: 44px; margin: 0 0 18px; padding: 11px 16px;
+      border-radius: 999px; background: var(--surface); border: 1px solid var(--line);
+      color: var(--sage); font-weight: 500;
+    }
+    #status:empty { visibility: hidden; }
+
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .panel {
+      background: var(--surface); border: 1px solid var(--line);
+      border-radius: 22px; padding: 26px; margin: 0 0 20px;
+      box-shadow: var(--card-shadow);
+    }
+    .grid .panel { margin: 0; }
+    .panel:first-of-type { border-top: 4px solid var(--plum); }
+    .grid .panel:nth-child(2) { border-top: 4px solid var(--sage); }
+
+    label { display: block; font-weight: 500; font-size: .92rem; margin: 14px 0 6px; }
+    input, select, button {
+      width: 100%; padding: 12px 14px; border-radius: 12px;
+      border: 1px solid var(--line); font: inherit; color: inherit; background: var(--field);
+      transition: border-color .15s, box-shadow .15s, background-color .15s, transform .1s;
+    }
+    input:hover, select:hover { border-color: #b9c9be; }
+    input:focus-visible, select:focus-visible, button:focus-visible {
+      outline: none; border-color: var(--plum); box-shadow: 0 0 0 4px rgba(122, 46, 107, .18);
+    }
+    button {
+      background: var(--plum); color: #fff; border: 0; font-weight: 600;
+      cursor: pointer; margin-top: 16px;
+    }
+    button:hover { background: var(--plum-hover); }
+    button:active { transform: translateY(1px); }
+    button.secondary {
+      background: transparent; color: var(--sage); border: 1.5px solid var(--sage); margin-top: 10px;
+    }
+    button.secondary:hover { background: var(--mint); }
+    button:disabled { opacity: .6; cursor: wait; }
+
+    #me-button, #admin-button, #parent-button { width: auto; padding-inline: 18px; margin: 14px 8px 0 0; }
+
+    pre {
+      white-space: pre-wrap; overflow-wrap: anywhere; margin: 18px 0 0;
+      background: var(--code-bg); color: var(--code-ink);
+      padding: 16px; border-radius: 14px; font-size: .88rem; line-height: 1.55;
+    }
+
+    .theme-toggle {
+      position: fixed; top: 16px; right: 16px; z-index: 5;
+      width: auto; margin: 0; padding: 9px 16px; border-radius: 999px;
+      background: var(--surface); color: var(--ink); border: 1px solid var(--line);
+      font-weight: 500; font-size: .9rem;
+    }
+    .theme-toggle:hover { background: var(--mint); }
+
+    @media (max-width: 640px) {
+      main { padding: 32px 14px 40px; }
+      .grid { grid-template-columns: 1fr; }
+      .panel { padding: 22px; }
+    }
+    @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+  </style>
+</head>
+<body>
+<button id="theme-toggle" class="theme-toggle" type="button" aria-pressed="false">Dark mode</button>
+<main>
+  <h1>Account Portal</h1>
+
+  <p id="status" role="status" aria-live="polite"></p>
+
+  <div class="grid">
+    <section class="panel">
+      <h2>Register</h2>
+      <form id="register-form">
+        <label for="register-name">Full name</label>
+        <input id="register-name" required maxlength="100">
+        <label for="register-email">Email</label>
+        <input id="register-email" type="email" required>
+        <label for="register-password">Password (minimum 8 characters)</label>
+        <input id="register-password" type="password" minlength="8" required autocomplete="new-password">
+        <label for="register-role">Role</label>
+        <select id="register-role"><option value="student">Student</option><option value="parent">Parent</option></select>
+        <button type="submit">Create account</button>
+      </form>
+    </section>
+
+    <section class="panel">
+      <h2>Login</h2>
+      <form id="login-form">
+        <label for="login-email">Email</label>
+        <input id="login-email" type="email" required autocomplete="username">
+        <label for="login-password">Password</label>
+        <input id="login-password" type="password" required autocomplete="current-password">
+        <button type="submit">Login</button>
+      </form>
+      <button id="refresh-button" class="secondary" type="button">Refresh access token</button>
+      <button id="logout-button" class="secondary" type="button">Logout</button>
+    </section>
+  </div>
+
+  <section class="panel" style="margin-top:20px">
+    <h2>Current account</h2>
+    <button id="me-button" type="button">Load my profile</button>
+    <button id="admin-button" class="secondary" type="button">Try admin endpoint</button>
+    <button id="parent-button" class="secondary" type="button">Try parent endpoint</button>
+    <pre id="output">Not authenticated.</pre>
+  </section>
+</main>
+<script>
+  const themeToggle = document.getElementById("theme-toggle");
+  function applyTheme(theme) {
+    document.documentElement.setAttribute("data-theme", theme);
+    themeToggle.textContent = theme === "dark" ? "Light mode" : "Dark mode";
+    themeToggle.setAttribute("aria-pressed", String(theme === "dark"));
+  }
+  applyTheme(document.documentElement.getAttribute("data-theme") || "light");
+  themeToggle.addEventListener("click", () => {
+    const next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+    applyTheme(next);
+    try { localStorage.setItem("theme", next); } catch (e) {}
+  });
+
+  const statusNode = document.getElementById("status");
+  const output = document.getElementById("output");
+  let accessToken = null;
+  let refreshToken = null;
+
+  function status(message) { statusNode.textContent = message; }
+  function show(data) { output.textContent = JSON.stringify(data, null, 2); }
+
+  async function request(path, options = {}, authenticated = false) {
+    const headers = { "Content-Type": "application/json", ...(options.headers || {}) };
+    if (authenticated && accessToken) headers.Authorization = `Bearer ${accessToken}`;
+    const response = await fetch(path, { ...options, headers });
+    if (response.status === 204) return null;
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(data.detail || `Request failed (${response.status})`);
+    return data;
+  }
+
+  document.getElementById("register-form").addEventListener("submit", async event => {
+    event.preventDefault();
+    try {
+      const data = await request("/auth/register", {
+        method: "POST",
+        body: JSON.stringify({
+          full_name: document.getElementById("register-name").value,
+          email: document.getElementById("register-email").value,
+          password: document.getElementById("register-password").value,
+          role: document.getElementById("register-role").value
+        })
+      });
+      status("Account created. Log in to continue.");
+      show(data);
+      event.target.reset();
+    } catch (error) { status(error.message); }
+  });
+
+  document.getElementById("login-form").addEventListener("submit", async event => {
+    event.preventDefault();
+    try {
+      const data = await request("/auth/login", {
+        method: "POST",
+        body: JSON.stringify({
+          email: document.getElementById("login-email").value,
+          password: document.getElementById("login-password").value
+        })
+      });
+      accessToken = data.access_token;
+      refreshToken = data.refresh_token;
+      status("Login successful.");
+      show({ token_type: data.token_type, expires_in: data.expires_in, message: "Tokens held in page memory only." });
+      event.target.reset();
+    } catch (error) { status(error.message); }
+  });
+
+  document.getElementById("refresh-button").addEventListener("click", async () => {
+    if (!refreshToken) return status("Log in first.");
+    try {
+      const data = await request("/auth/refresh", {
+        method: "POST", body: JSON.stringify({ refresh_token: refreshToken })
+      });
+      accessToken = data.access_token;
+      refreshToken = data.refresh_token;
+      status("Tokens rotated successfully. Previous refresh token is revoked.");
+      show({ expires_in: data.expires_in, message: "New tokens held in page memory only." });
+    } catch (error) { status(error.message); }
+  });
+
+  document.getElementById("logout-button").addEventListener("click", async () => {
+    if (!refreshToken) return status("No active refresh token.");
+    try {
+      await request("/auth/logout", {
+        method: "POST", body: JSON.stringify({ refresh_token: refreshToken })
+      });
+      accessToken = null;
+      refreshToken = null;
+      status("Logged out. Refresh token revoked.");
+      show({ message: "Session ended." });
+    } catch (error) { status(error.message); }
+  });
+
+  document.getElementById("me-button").addEventListener("click", async () => {
+    try { show(await request("/auth/me", {}, true)); status("Profile loaded."); }
+    catch (error) { status(error.message); }
+  });
+
+  async function tryRole(path) {
+    try { show(await request(path, {}, true)); status("Access granted."); }
+    catch (error) { status(error.message); }
+  }
+  document.getElementById("admin-button").addEventListener("click", () => tryRole("/admin/dashboard"));
+  document.getElementById("parent-button").addEventListener("click", () => tryRole("/parent/dashboard"));
+</script>
+</body>
+</html>

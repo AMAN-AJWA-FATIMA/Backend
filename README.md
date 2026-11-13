@@ -1,4 +1,4 @@
-# Backend
+# API skeleton with secure login and roles
 
 A Python backend project developed using **FastAPI, PostgreSQL 16, and Docker Compose**. It demonstrates the fundamentals of backend development, including REST API design, request validation, dependency injection, relational database operations, containerization, automated testing, and continuous integration using GitHub Actions.
 
@@ -362,3 +362,64 @@ This project provided practical experience with:
 GitHub Repository: https://github.com/AMAN-AJWA-FATIMA/Backend/
 
 API Documentation: http://localhost:8000/docs (available when the application is running).
+
+## Authentication and role-based access
+
+The API includes registration, login, refresh-token rotation, logout, and the
+authenticated profile endpoint. Passwords are hashed with Argon2id. Access
+JWTs expire after 15 minutes. Refresh tokens are random opaque values; only
+their SHA-256 digests are stored in PostgreSQL. Refresh tokens expire after
+14 days and are revoked on rotation or logout.
+
+Roles are `student`, `parent`, and `admin`. Public registration permits only
+`student` and `parent`; admin accounts must be provisioned through a controlled
+administrative process. Example protected endpoints are `/admin/dashboard`
+and `/parent/dashboard`.
+
+### Environment configuration
+
+Add `JWT_SECRET_KEY` to `.env`. The setup script creates a random local value
+if it is missing. Never commit `.env` or share its contents. `.env.example`
+contains placeholders only.
+
+### Run with Docker
+
+```bash
+docker compose up --build
+```
+
+The API container applies Alembic migrations before starting Uvicorn.
+
+- Web interface: http://localhost:8000/
+- Swagger UI: http://localhost:8000/docs
+- Health check: http://localhost:8000/health
+
+### Local migrations
+
+```bash
+alembic upgrade head
+alembic current
+```
+
+### Authentication endpoints
+
+- `POST /auth/register`
+- `POST /auth/login`
+- `POST /auth/refresh`
+- `POST /auth/logout`
+- `GET /auth/me` (Bearer access token)
+
+Refresh and logout request bodies contain `{"refresh_token": "..."}`.
+Login returns an access token and a refresh token. The browser demonstration
+keeps tokens in page memory only; refreshing the page requires logging in again.
+
+### Provision an administrator
+
+Do not register an admin through the public endpoint. From the repository root, run `python -m scripts.create_admin` after dependencies and database migrations are ready. The password is entered interactively and stored only as an Argon2id hash.
+
+### Legacy accounts
+
+The migration preserves existing user rows and adds a nullable `password_hash`
+for those legacy rows. Such accounts cannot log in until a password-reset or
+credential-enrollment process is implemented. Newly registered accounts always
+receive an Argon2id password hash.
