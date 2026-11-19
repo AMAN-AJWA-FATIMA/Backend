@@ -121,15 +121,16 @@ def test_student_cannot_access_admin_endpoint(client):
     assert response.status_code == 403
 
 
-def test_parent_role_can_access_parent_endpoint(client):
-    register_user(client, role="parent")
+def test_public_registration_cannot_create_parent(client):
+    registered = register_user(client, role="parent")
+    assert registered["role"] == "student"
+
     tokens = login_user(client, "parent.account@example.com").json()
     response = client.get(
         "/parent/dashboard",
         headers={"Authorization": f"Bearer {tokens['access_token']}"},
     )
-    assert response.status_code == 200
-    assert response.json()["role"] == "parent"
+    assert response.status_code == 403
 
 
 def test_public_registration_cannot_create_admin(client):

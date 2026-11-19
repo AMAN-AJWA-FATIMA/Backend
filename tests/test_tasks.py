@@ -1,3 +1,16 @@
+import pytest
+
+from app.dependencies.authentication import get_current_user
+from app.main import app
+from app.models import User
+
+
+@pytest.fixture(autouse=True)
+def admin_auth_override(client):
+    app.dependency_overrides[get_current_user] = lambda: User(id=1, role='admin')
+    yield
+    app.dependency_overrides.pop(get_current_user, None)
+
 def create_user(client, email="aman@example.com"):
     response = client.post(
         "/users/",
