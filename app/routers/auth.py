@@ -68,7 +68,7 @@ def register(
         full_name=payload.full_name,
         email=str(payload.email),
         password_hash=hash_password(payload.password),
-        role=payload.role,
+        role="student",
     )
     db.add(user)
     try:
