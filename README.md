@@ -1,74 +1,195 @@
-# Backend — # API Skeleton with Secure Login and Roles
 
-A containerized backend application built with **Python 3.12, FastAPI, PostgreSQL 16, SQLAlchemy 2, and Docker Compose**.
+# Backend API — Secure REST API & Curriculum Management
 
-The project demonstrates REST API development, relational database integration, request validation, authentication, role-based authorization, database migrations, automated testing, and continuous integration.
+<div align="center">
 
-It includes a task-management API and an authentication system with secure password hashing, short-lived access tokens, rotating refresh tokens, and role-protected endpoints.
+### A containerized backend built with FastAPI, PostgreSQL, SQLAlchemy, and Docker
 
-## 1. Technology Stack
+[![Python](https://img.shields.io/badge/Python-3.12-blue?logo=python&logoColor=white)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-API_Framework-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)](https://www.docker.com/)
+[![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-2.x-red)](https://www.sqlalchemy.org/)
+[![CI](https://github.com/AMAN-AJWA-FATIMA/Backend/actions/workflows/ci.yml/badge.svg)](https://github.com/AMAN-AJWA-FATIMA/Backend/actions/workflows/ci.yml)
+[![Tests](https://img.shields.io/badge/Tests-47_Passing-success)](https://github.com/AMAN-AJWA-FATIMA/Backend)
+
+**[Repository](https://github.com/AMAN-AJWA-FATIMA/Backend)** · **[Swagger UI](http://localhost:8000/docs)** · **[ReDoc](http://localhost:8000/redoc)**
+
+</div>
+
+---
+
+## Overview
+
+A containerized REST API project demonstrating backend development fundamentals and production-oriented practices using Python.
+
+The application includes user and task management, secure authentication, role-based authorization, and a curriculum management system backed by PostgreSQL.
+
+### Highlights
+
+- 🔐 Secure authentication with JWT access tokens and rotating refresh tokens
+- 🛡️ Role-based authorization for student, parent, and admin users
+- 👥 User management with validation and pagination
+- 📋 Task management with CRUD operations, filters, and pagination
+- 📚 Curriculum hierarchy: grades, subjects, books, chapters, pages, and topics
+- 📖 Public access restricted to published books
+- 🗄️ PostgreSQL database with SQLAlchemy ORM
+- 🔄 Database versioning with Alembic
+- 🐳 Containerized services with Docker Compose
+- 🧪 Automated API tests with Pytest and HTTPX
+- ⚙️ CI pipeline with GitHub Actions and Ruff
+
+---
+
+## Table of Contents
+
+<details open>
+<summary><strong>Click to expand navigation</strong></summary>
+
+- [Architecture](#architecture)
+- [Technology Stack](#technology-stack)
+- [Project Structure](#project-structure)
+- [Features](#features)
+  - [Authentication](#authentication)
+  - [Role-Based Authorization](#role-based-authorization)
+  - [Task Management](#task-management)
+  - [Curriculum Management](#curriculum-management)
+- [API Reference](#api-reference)
+- [Database Design](#database-design)
+- [Quick Start](#quick-start)
+- [Database Migrations](#database-migrations)
+- [Seed Data](#seed-data)
+- [Testing](#testing)
+- [Continuous Integration](#continuous-integration)
+- [Security](#security)
+- [Known Limitations](#known-limitations)
+- [Development Workflow](#development-workflow)
+
+</details>
+
+---
+
+## Architecture
+
+```mermaid
+flowchart TD
+    Client["Client / Web Interface"]
+    API["FastAPI Application"]
+    Auth["Authentication"]
+    RBAC["Role-Based Authorization"]
+    Routers["API Routers"]
+    Schemas["Pydantic Schemas"]
+    ORM["SQLAlchemy ORM"]
+    DB[("PostgreSQL 16")]
+    Migrations["Alembic Migrations"]
+
+    Client --> API
+    API --> Auth
+    API --> RBAC
+    API --> Routers
+    Auth --> Schemas
+    RBAC --> Routers
+    Routers --> Schemas
+    Schemas --> ORM
+    ORM --> DB
+    Migrations --> DB
+```
+
+### Request lifecycle
+
+1. A client sends an HTTP request.
+2. FastAPI routes the request to the appropriate endpoint.
+3. Pydantic validates incoming data.
+4. Authentication dependencies verify identity when required.
+5. Authorization dependencies enforce role permissions.
+6. SQLAlchemy interacts with PostgreSQL.
+7. The API returns a structured response.
+
+---
+
+## Technology Stack
 
 | Technology | Purpose |
 |---|---|
 | Python 3.12 | Backend programming language |
 | FastAPI | REST API framework |
-| Pydantic | Request validation and response schemas |
-| SQLAlchemy 2 | ORM and database operations |
+| Pydantic | Request validation and serialization |
+| SQLAlchemy 2 | ORM and database access |
 | PostgreSQL 16 | Relational database |
-| Alembic | Database schema migrations |
+| Alembic | Database migrations |
 | Argon2id | Password hashing |
-| PyJWT | JWT access-token generation and validation |
-| Docker & Docker Compose | Containerization and service orchestration |
+| PyJWT | JWT authentication |
+| Docker | Containerization |
+| Docker Compose | Service orchestration |
 | Pytest | Automated testing |
 | HTTPX | API testing |
 | Ruff | Linting and code quality |
 | Git & GitHub | Version control |
 | GitHub Actions | Continuous integration |
-| DBeaver | Database administration and inspection |
+| DBeaver | Database administration |
 
-## 2. Project Structure
+---
+
+## Project Structure
 
 ```text
 Backend/
 ├── .github/
 │   └── workflows/
 │       └── ci.yml
+│
 ├── alembic/
 │   ├── versions/
-│   │   └── 20261113_01_authentication.py
+│   │   ├── 20261113_01_authentication.py
+│   │   └── 20261120_01_curriculum.py
 │   ├── env.py
 │   └── script.py.mako
+│
 ├── app/
 │   ├── core/
 │   │   ├── config.py
 │   │   ├── database.py
 │   │   └── security.py
+│   │
 │   ├── dependencies/
 │   │   ├── authentication.py
 │   │   └── permissions.py
+│   │
 │   ├── models/
+│   │   ├── user.py
 │   │   ├── refresh_token.py
-│   │   └── user.py
+│   │   └── curriculum.py
+│   │
 │   ├── routers/
 │   │   ├── auth.py
 │   │   ├── authorization_demo.py
+│   │   ├── users.py
 │   │   ├── tasks.py
-│   │   └── users.py
+│   │   └── curriculum.py
+│   │
 │   ├── schemas/
 │   │   ├── auth.py
+│   │   ├── user.py
 │   │   ├── task.py
-│   │   └── user.py
+│   │   └── curriculum.py
+│   │
 │   └── main.py
+│
 ├── scripts/
-│   └── create_admin.py
+│   ├── create_admin.py
+│   └── seed_curriculum.py
+│
 ├── tests/
 │   ├── conftest.py
 │   ├── test_auth.py
+│   ├── test_curriculum.py
 │   ├── test_healthy.py
 │   ├── test_tasks.py
 │   └── test_users.py
+│
 ├── web/
 │   └── index.html
+│
 ├── .env.example
 ├── .gitignore
 ├── alembic.ini
@@ -79,37 +200,72 @@ Backend/
 └── README.md
 ```
 
-## 3. Core Features
+<details>
+<summary><strong>Explore the application layers</strong></summary>
 
-### Task Management API
+| Layer | Responsibility |
+|---|---|
+| `core/` | Configuration, database connection, security utilities |
+| `dependencies/` | Authentication and authorization dependencies |
+| `models/` | SQLAlchemy database models |
+| `schemas/` | Pydantic request and response schemas |
+| `routers/` | HTTP endpoints and application logic |
+| `scripts/` | Administrative and data-seeding utilities |
+| `tests/` | Automated application tests |
+| `alembic/` | Database schema versioning |
+| `.github/workflows/` | Automated CI pipeline |
 
-The existing API provides operations for managing users and tasks.
+</details>
 
-Implemented capabilities include:
+---
 
-- Creating and retrieving user records.
-- Listing users with pagination.
-- Validating email addresses.
-- Creating, retrieving, updating, and deleting tasks.
-- Handling nonexistent records and invalid requests.
-- Filtering and paginating task results.
-- Managing database relationships and constraints.
+# Features
 
-The task and user endpoints use the application's existing database implementation.
+## Authentication
 
-### Authentication
+The authentication system supports:
 
-The authentication module provides:
+- User registration
+- Login using email and password
+- Secure password hashing using Argon2id
+- JWT access-token issuance
+- Refresh-token rotation
+- Logout and refresh-token revocation
+- Authenticated profile retrieval
+- Bearer-token authentication
 
-- User registration.
-- Login with email and password.
-- JWT access-token issuance.
-- Refresh-token rotation.
-- Refresh-token revocation on logout.
-- Authenticated user profile retrieval.
-- Protected endpoints using HTTP Bearer authentication.
+### Authentication lifecycle
 
-### Role-Based Authorization
+```mermaid
+flowchart TD
+    A["Register / Login"] --> B["Verify Credentials"]
+    B --> C["Issue Access + Refresh Tokens"]
+    C --> D["Access Protected API"]
+    D --> E["Validate JWT"]
+    E --> F["Authenticated Request"]
+    C --> G["Refresh Session"]
+    G --> H["Revoke Old Refresh Token"]
+    H --> I["Issue New Token Pair"]
+    C --> J["Logout"]
+    J --> K["Revoke Refresh Token"]
+```
+
+### Token configuration
+
+| Token | Configuration |
+|---|---|
+| Access token | JWT |
+| Signing algorithm | HS256 |
+| Access lifetime | 15 minutes |
+| Refresh token | Cryptographically random opaque token |
+| Refresh lifetime | 14 days |
+| Refresh-token storage | SHA-256 digest |
+| Rotation | Enabled |
+| Revocation | Supported |
+
+---
+
+## Role-Based Authorization
 
 The application supports three roles:
 
@@ -119,347 +275,369 @@ The application supports three roles:
 | `parent` | Parent account |
 | `admin` | Administrative account |
 
-A reusable `require_roles()` dependency enforces endpoint permissions.
+A reusable `require_roles()` dependency controls access to protected endpoints.
 
-Example authorization rules:
+### Authorization examples
 
 | Endpoint | Allowed roles |
 |---|---|
-| `GET /admin/dashboard` | admin |
-| `GET /parent/dashboard` | parent, admin |
-| `GET /auth/me` | Any authenticated user |
+| `/admin/dashboard` | Admin |
+| `/parent/dashboard` | Parent, Admin |
+| `/auth/me` | Authenticated users |
+| Curriculum administration | Admin |
+| Public curriculum reads | Public |
 
-Public registration permits only `student` and `parent` roles. Administrative accounts must be provisioned separately.
+Public registration supports student and parent roles. Administrator accounts are provisioned separately.
 
-## 4. Authentication Architecture
+---
 
-### Password Security
+## Task Management
 
-Passwords are hashed using **Argon2id** through `argon2-cffi`.
+The task-management API provides:
 
-- Plaintext passwords are never stored in the database.
-- Password verification uses the stored Argon2 hash.
-- Invalid credentials return HTTP 401.
-- Public registration validates password length.
-- Administrative account creation uses interactive password entry.
+- Task creation
+- Task retrieval
+- Task updates
+- Task deletion
+- Task listing
+- Filtering
+- Pagination
+- Database relationship handling
+- Request validation
+- Error handling for nonexistent records
 
-### Access Tokens
+---
 
-Access tokens are signed JWTs using HS256.
+## Curriculum Management
 
-| Property | Configuration |
-|---|---|
-| Token type | JWT |
-| Signing algorithm | HS256 |
-| Lifetime | 15 minutes |
-| Authentication scheme | Bearer |
-| Required claims | `sub`, `iat`, `exp`, `type` |
-| Token identifier | `jti` |
+The curriculum module provides a hierarchical educational-content API.
 
-Protected endpoints validate the token signature, expiration, token type, and associated user.
+### Curriculum hierarchy
 
-### Refresh Tokens
+```mermaid
+flowchart TD
+    Grades["Grades"]
+    Subjects["Subjects"]
+    Books["Books"]
+    Chapters["Chapters"]
+    Pages["Pages"]
+    Topics["Topics (Optional)"]
 
-Refresh tokens are opaque, cryptographically random values.
-
-| Property | Configuration |
-|---|---|
-| Token lifetime | 14 days |
-| Generation | Python `secrets` |
-| Database storage | SHA-256 digest |
-| Rotation | Enabled |
-| Revocation | Supported |
-| User relationship | Foreign key to `users` |
-
-The application stores only the SHA-256 digest of each refresh token, not its original value.
-
-When a refresh token is used:
-
-1. The submitted token is hashed.
-2. Its corresponding database record is retrieved.
-3. The application checks whether it exists, has expired, or has been revoked.
-4. The old token is revoked.
-5. A new access token and refresh token are issued.
-6. The new refresh-token digest is stored.
-
-Logout revokes the submitted refresh token. A revoked or previously rotated refresh token cannot be used again.
-
-### Authentication Flow
-
-```text
-Registration
-    |
-    v
-User account created
-    |
-    v
-Login with email and password
-    |
-    v
-Password verification (Argon2id)
-    |
-    v
-Access token + Refresh token
-    |
-    +--------------------------+
-    |                          |
-    v                          v
-Access protected API       Refresh access
-    |                          |
-    v                          v
-Validate JWT              Validate refresh token
-    |                          |
-    v                          v
-Authorize user            Revoke old token
-    |                          |
-    v                          v
-Return response           Issue new token pair
-                               |
-                               v
-                         Continue session
-
-Logout
-    |
-    v
-Revoke refresh token
-    |
-    v
-Further refresh attempts rejected
+    Grades --> Subjects
+    Subjects --> Books
+    Books --> Chapters
+    Chapters --> Pages
+    Chapters --> Topics
 ```
 
-**Note:** Revoking a refresh token prevents future token renewal. An already issued access JWT remains valid until its expiration because access-token revocation through a denylist is not currently implemented.
+### Curriculum entities
 
-## 5. API Reference
+| Entity | Description |
+|---|---|
+| Grade | Educational grade level |
+| Subject | Subject associated with a grade |
+| Book | Educational book associated with a subject |
+| Chapter | Chapter belonging to a book |
+| Page | Page content, image URL, and page number |
+| Topic | Optional chapter tag |
 
-The following endpoints are implemented by the application.
+### Publishing rules
 
-### General Endpoints
+- Books have a `published` flag.
+- Public book listings only return published books.
+- Unpublished books are not accessible through public chapter or page endpoints.
+- Curriculum administration is restricted to admin users.
+
+### Curriculum CRUD operations
+
+Administrators can create, update, and delete:
+
+- Grades
+- Subjects
+- Books
+- Chapters
+- Pages
+- Topics
+
+### Seed dataset
+
+The seed script provides:
+
+| Data | Quantity |
+|---|---:|
+| Grades | 2 |
+| Subjects | 3 |
+| Books | 2 |
+| Chapters | 10 |
+| Chapters per book | 5 |
+
+---
+
+# API Reference
+
+Interactive API documentation is generated automatically by FastAPI.
+
+| Documentation | URL |
+|---|---|
+| Swagger UI | [http://localhost:8000/docs](http://localhost:8000/docs) |
+| ReDoc | [http://localhost:8000/redoc](http://localhost:8000/redoc) |
+| OpenAPI JSON | [http://localhost:8000/openapi.json](http://localhost:8000/openapi.json) |
+
+---
+
+## General Endpoints
 
 | Method | Endpoint | Description |
 |---|---|---|
-| GET | `/` | Serves the web interface |
-| GET | `/health` | Application health check |
+| GET | `/` | Web interface |
+| GET | `/health` | Health check |
 
-### Authentication Endpoints
+## Authentication Endpoints
 
-| Method | Endpoint | Description | Authentication |
+| Method | Endpoint | Description | Access |
 |---|---|---|---|
-| POST | `/auth/register` | Register a student or parent | Public |
+| POST | `/auth/register` | Register a user | Public |
 | POST | `/auth/login` | Authenticate and issue tokens | Public |
-| POST | `/auth/refresh` | Rotate refresh token and issue new tokens | Refresh token |
+| POST | `/auth/refresh` | Rotate refresh token | Refresh token |
 | POST | `/auth/logout` | Revoke refresh token | Refresh token |
-| GET | `/auth/me` | Retrieve authenticated user profile | Bearer token |
+| GET | `/auth/me` | Get current user profile | Bearer token |
 
-### Authorization Demonstration Endpoints
+## Authorization Demonstration
 
 | Method | Endpoint | Allowed roles |
 |---|---|---|
-| GET | `/admin/dashboard` | admin |
-| GET | `/parent/dashboard` | parent, admin |
+| GET | `/admin/dashboard` | Admin |
+| GET | `/parent/dashboard` | Parent, Admin |
 
-### User and Task Endpoints
+## User Endpoints
 
-The application also exposes the existing user and task-management routes:
+| Endpoint | Description |
+|---|---|
+| `/users` | User operations and listing |
+| `/users/{user_id}` | Operations on an individual user |
 
-- `/users`
-- `/users/{user_id}`
-- `/tasks`
-- `/tasks/{task_id}`
+Consult Swagger UI for the exact supported HTTP methods and schemas.
 
-Consult Swagger UI for the exact request schemas, supported methods, query parameters, and response models.
+## Task Endpoints
 
-## 6. Request Examples
+| Endpoint | Description |
+|---|---|
+| `/tasks` | Task creation, listing, filtering, pagination |
+| `/tasks/{task_id}` | Retrieve, update, or delete a task |
 
-### Register a User
+Consult Swagger UI for the exact request parameters and schemas.
 
-**POST `/auth/register`**
+## Curriculum Endpoints
 
-```json
-{
-  "full_name": "Ali Ahmed",
-  "email": "ali@example.com",
-  "password": "StrongPassword123!",
-  "role": "student"
-}
+### Public Read Endpoints
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/curriculum/grades` | List grades |
+| GET | `/curriculum/grades/{grade_id}/subjects` | List subjects in a grade |
+| GET | `/curriculum/subjects/{subject_id}/books` | List published books |
+| GET | `/curriculum/books/{book_id}/chapters` | List chapters in a published book |
+| GET | `/curriculum/chapters/{chapter_id}/pages` | List pages in a published chapter |
+
+### Admin Endpoints
+
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/curriculum/admin/{resource}` | Create a resource |
+| PATCH | `/curriculum/admin/{resource}/{record_id}` | Update a resource |
+| DELETE | `/curriculum/admin/{resource}/{record_id}` | Delete a resource |
+
+Supported resource names:
+
+```text
+grades
+subjects
+books
+chapters
+pages
+topics
 ```
 
-A successful registration returns HTTP 201 and the created user profile.
+All curriculum administration endpoints require the `admin` role.
 
-The public registration schema accepts `student` and `parent` roles only.
+---
 
-### Login
+## Pagination
 
-**POST `/auth/login`**
+Public curriculum list endpoints support:
 
-```json
-{
-  "email": "ali@example.com",
-  "password": "StrongPassword123!"
-}
-```
+| Parameter | Type | Default | Constraints |
+|---|---|---:|---|
+| `page` | Integer | 1 | Minimum 1 |
+| `page_size` | Integer | 20 | 1–100 |
 
-A successful login returns HTTP 200.
-
-Example response structure:
-
-```json
-{
-  "access_token": "<access-token>",
-  "token_type": "bearer",
-  "expires_in": 900,
-  "refresh_token": "<refresh-token>",
-  "refresh_expires_in": 1209600
-}
-```
-
-The example values represent the configured token lifetimes. Actual token values are generated dynamically.
-
-### Access the Current User
-
-**GET `/auth/me`**
-
-Include the access token in the request header:
+### Example request
 
 ```http
-Authorization: Bearer <access-token>
+GET /curriculum/grades?page=1&page_size=20
 ```
 
-Returns the authenticated user's profile.
+### Standard response structure
 
-### Refresh Tokens
-
-**POST `/auth/refresh`**
+All paginated curriculum list endpoints use the same response format:
 
 ```json
 {
-  "refresh_token": "<refresh-token>"
+  "items": [],
+  "total": 0,
+  "page": 1,
+  "page_size": 20,
+  "pages": 0
 }
 ```
 
-Returns a new access token and refresh token. The previous refresh token is revoked.
+| Field | Description |
+|---|---|
+| `items` | Records returned for the current page |
+| `total` | Total number of matching records |
+| `page` | Current page |
+| `page_size` | Maximum records per page |
+| `pages` | Total number of pages |
 
-### Logout
+---
 
-**POST `/auth/logout`**
-
-```json
-{
-  "refresh_token": "<refresh-token>"
-}
-```
-
-A successful logout returns HTTP 204 No Content.
-
-Subsequent attempts to refresh using the revoked token return HTTP 401.
-
-### Authorization
-
-**GET `/admin/dashboard`**
-
-A valid student access token receives HTTP 403 Forbidden.
-
-An authenticated admin receives access.
-
-**GET `/parent/dashboard`**
-
-Parent and admin accounts are permitted to access this endpoint.
-
-## 7. Database Design
+# Database Design
 
 The application uses PostgreSQL 16 and SQLAlchemy 2.
 
-The authentication implementation extends the existing `users` table and introduces a separate `refresh_tokens` table.
+## Core tables
 
-### Users Table
+### Authentication and task management
 
-Authentication-related fields:
-
-| Column | Purpose |
+| Table | Purpose |
 |---|---|
-| `id` | Primary key |
-| `full_name` | User's full name |
-| `email` | User email address |
-| `password_hash` | Argon2id password hash |
-| `role` | User authorization role |
-| `created_at` | Account creation timestamp |
+| `users` | User accounts, roles, credentials |
+| `refresh_tokens` | Refresh-token hashes, expiration, revocation |
+| `tasks` | Task-management records |
 
-The existing user fields and relationships are retained.
+### Curriculum
 
-`password_hash` is nullable to preserve legacy user records created before authentication was introduced. Those accounts cannot authenticate until credentials are provisioned.
-
-### Refresh Tokens Table
-
-| Column | Purpose |
+| Table | Purpose |
 |---|---|
-| `id` | Primary key |
-| `user_id` | Foreign key referencing users |
-| `token_hash` | SHA-256 digest of refresh token |
-| `expires_at` | Token expiration timestamp |
-| `revoked_at` | Revocation timestamp; nullable |
-| `created_at` | Token creation timestamp |
+| `grades` | Grade levels |
+| `subjects` | Subjects associated with grades |
+| `books` | Books associated with subjects |
+| `chapters` | Chapters associated with books |
+| `pages` | Page content, page number, image URL |
+| `topics` | Optional chapter tags |
 
-Database constraints and indexes include:
+## Curriculum relationships
 
-- Primary key on `id`.
-- Foreign key from `user_id` to `users.id`.
-- Unique constraint on `token_hash`.
-- Index on `user_id`.
+```mermaid
+erDiagram
+    GRADES ||--o{ SUBJECTS : contains
+    SUBJECTS ||--o{ BOOKS : contains
+    BOOKS ||--o{ CHAPTERS : contains
+    BOOKS ||--o{ PAGES : contains
+    CHAPTERS ||--o{ PAGES : contains
+    CHAPTERS ||--o{ TOPICS : tagged_with
 
-## 8. Database Migrations with Alembic
+    GRADES {
+        uuid id PK
+        string name
+        datetime created_at
+        datetime updated_at
+    }
 
-Alembic manages database schema changes.
+    SUBJECTS {
+        uuid id PK
+        uuid grade_id FK
+        string name
+        datetime created_at
+        datetime updated_at
+    }
 
-The authentication migration:
+    BOOKS {
+        uuid id PK
+        uuid subject_id FK
+        string title
+        text description
+        boolean published
+        datetime created_at
+        datetime updated_at
+    }
 
-`alembic/versions/20261113_01_authentication.py`
+    CHAPTERS {
+        uuid id PK
+        uuid book_id FK
+        integer chapter_no
+        string title
+        datetime created_at
+        datetime updated_at
+    }
 
-It performs the following operations:
+    PAGES {
+        uuid id PK
+        uuid book_id FK
+        uuid chapter_id FK
+        integer page_no
+        string image_url
+        text text
+        datetime created_at
+        datetime updated_at
+    }
 
-1. Adds `password_hash` to the existing users table.
-2. Adds a `role` column with a default of `student`.
-3. Creates the `refresh_tokens` table.
-4. Adds the required foreign key and unique constraint.
-5. Creates an index on `refresh_tokens.user_id`.
-
-The migration preserves existing user records and does not require recreating the database.
-
-### Apply Migrations
-
-```bash
-alembic upgrade head
+    TOPICS {
+        uuid id PK
+        uuid chapter_id FK
+        string tag
+        datetime created_at
+        datetime updated_at
+    }
 ```
 
-### Check Migration Status
+### Database constraints and indexes
+
+The curriculum module includes:
+
+- UUID primary keys
+- `created_at` and `updated_at` timestamps
+- Foreign-key constraints
+- Foreign-key indexes
+- Unique grade names
+- Unique subject names per grade
+- Unique chapter numbers per book
+- Unique page numbers per book
+- Referential integrity for page/book/chapter relationships
+
+---
+
+# Quick Start
+
+## Prerequisites
+
+- Python 3.12
+- Git
+- Docker Engine
+- Docker Compose
+
+## 1. Clone the repository
 
 ```bash
-alembic current
+git clone https://github.com/AMAN-AJWA-FATIMA/Backend.git
+cd Backend
 ```
 
-### View Migration History
+## 2. Configure environment variables
 
-```bash
-alembic history
-```
-
-The Docker API container automatically applies migrations before starting the application.
-
-## 9. Environment Configuration and Secrets
-
-Sensitive configuration is provided through environment variables.
-
-Create a local `.env` file in the repository root using `.env.example` as a template.
+Create the environment file:
 
 ```bash
 cp .env.example .env
 ```
 
-Edit the local file:
+Edit it:
 
 ```bash
 nano .env
 ```
 
-Configure the following variables with appropriate local values:
+Configure the variables with appropriate local values:
 
 ```env
 POSTGRES_USER=postgres
@@ -477,61 +655,40 @@ ACCESS_TOKEN_EXPIRE_MINUTES=15
 REFRESH_TOKEN_EXPIRE_DAYS=14
 ```
 
-The API container connects to PostgreSQL using the Docker service hostname `db` and container port `5432`. The `DB_HOST` and `DB_PORT` values above are for local execution outside Docker.
+> **Important:** Never commit `.env` or real secrets to Git.
 
-## 10. Running the Project with Docker Compose
+The API container uses the Docker service hostname `db` and port `5432`. The `localhost:5433` values are intended for host-side database connections.
 
-### Prerequisites
+## 3. Start the application
 
-- Python 3.12
-- Git
-- Docker Engine
-- Docker Compose
-
-### Clone the Repository
-
-```bash
-git clone https://github.com/AMAN-AJWA-FATIMA/Backend.git
-cd Backend
-```
-
-### Configure Environment Variables
-
-```bash
-cp .env.example .env
-nano .env
-```
-
-Replace placeholder values with valid local credentials. Use the same PostgreSQL password for `POSTGRES_PASSWORD` and `DB_PASSWORD` when using the provided initialization configuration.
-
-### Start the Application
+Build and start services:
 
 ```bash
 docker compose up --build
 ```
 
-To run in the background:
+Or run in the background:
 
 ```bash
 docker compose up -d --build
 ```
 
-Docker Compose starts:
+### Services
 
 | Service | Container | Port |
 |---|---|---|
-| FastAPI | `backend_api` | `8000` |
-| PostgreSQL | `backend_db` | `5433` on host, `5432` in container |
+| FastAPI API | `backend_api` | `8000` |
+| PostgreSQL | `backend_db` | `5433` host / `5432` container |
 
-The API service waits for the database health check before starting. It applies Alembic migrations and then launches Uvicorn.
+Docker Compose waits for the database health check. The API container applies database migrations before starting the application.
 
-### Verify Containers
+## 4. Verify containers
 
 ```bash
 docker compose ps
 ```
 
-### Check API Health
+## 5. Verify API health
 
 ```bash
 curl -i http://localhost:8000/health
@@ -545,211 +702,284 @@ Expected response:
 }
 ```
 
-### Open the Application
+## 6. Open API documentation
 
-- Web interface: http://localhost:8000/
-- Swagger UI: http://localhost:8000/docs
-- ReDoc: http://localhost:8000/redoc
-- Health endpoint: http://localhost:8000/health
+- Swagger UI: [http://localhost:8000/docs](http://localhost:8000/docs)
+- ReDoc: [http://localhost:8000/redoc](http://localhost:8000/redoc)
 
-### Stop the Application
+---
 
-```bash
-docker compose down
-```
+# Database Migrations
 
-This stops and removes the containers while retaining the named PostgreSQL volume.
+Alembic manages the database schema.
 
-**Important:** Avoid `docker compose down -v` unless you intentionally want to delete the PostgreSQL volume and all database data stored in it.
-
-## 11. Running Locally Without Docker
-
-Docker Compose is the recommended way to run the complete application.
-
-For local Python development, first ensure PostgreSQL is available and the environment variables are configured for the local database connection.
-
-### Create a Virtual Environment
-
-```bash
-python3.12 -m venv .venv
-source .venv/bin/activate
-```
-
-### Install Dependencies
-
-```bash
-python -m pip install --upgrade pip
-pip install -r requirements.txt
-```
-
-### Apply Database Migrations
+## Apply all migrations
 
 ```bash
 alembic upgrade head
 ```
 
-### Start FastAPI
+## Check current migration
 
 ```bash
-uvicorn app.main:app --reload
+alembic current
 ```
 
-The application will be available at:
+## View migration history
 
-`http://127.0.0.1:8000`
+```bash
+alembic history
+```
 
-## 12. Administrator Account Provisioning
+The Docker API service automatically applies migrations before starting.
+
+---
+
+# Seed Data
+
+The curriculum seed script creates the required sample hierarchy.
+
+## Run the seed script
+
+```bash
+docker compose exec api python -m scripts.seed_curriculum
+```
+
+The script is designed to avoid creating duplicate records when rerun.
+
+### Expected dataset
+
+```text
+2 Grades
+├── 3 Subjects
+│   ├── 2 Books
+│   │   ├── Book 1 → 5 Chapters
+│   │   └── Book 2 → 5 Chapters
+```
+
+The seed dataset includes two grades, three subjects, two books, and ten chapters.
+
+---
+
+# Administrator Provisioning
 
 Administrator accounts cannot be created through public registration.
 
-Use the dedicated CLI script:
+Run:
 
 ```bash
-python -m scripts.create_admin
+docker compose exec api python -m scripts.create_admin
 ```
 
 The script:
 
-1. Requests the administrator's full name.
-2. Requests an email address.
-3. Prompts for a password without displaying it.
-4. Requires password confirmation.
-5. Enforces a minimum password length of 12 characters.
+1. Prompts for the administrator's name.
+2. Prompts for email.
+3. Requests a password securely.
+4. Confirms the password.
+5. Enforces password requirements.
 6. Hashes the password using Argon2id.
 7. Creates an account with the `admin` role.
 
-Ensure database connectivity and migrations are ready before running the command.
+---
 
-## 13. Web Interface
+# Testing
 
-A simple web interface is provided in `web/index.html`.
+The project uses Pytest and HTTPX.
 
-It demonstrates:
-
-- User registration.
-- User login.
-- Accessing the authenticated profile.
-- Refreshing access tokens.
-- Logging out.
-- Testing role-protected endpoints.
-
-Tokens are held in page memory rather than browser local storage or session storage. Reloading the page requires logging in again.
-
-The interface is intended as an integration demonstration, not a production-ready frontend.
-
-## 14. Testing
-
-The project uses Pytest and HTTPX to validate API behavior.
-
-Run the complete test suite:
+## Run the full test suite
 
 ```bash
 pytest -v
 ```
 
-### Authentication Test Coverage
+## Run tests quietly
 
-The authentication tests verify:
+```bash
+pytest -q
+```
 
-| Test | Expected result |
+## Run a specific module
+
+```bash
+pytest tests/test_auth.py -v
+pytest tests/test_tasks.py -v
+pytest tests/test_users.py -v
+pytest tests/test_curriculum.py -v
+```
+
+## Test coverage includes
+
+<details>
+<summary><strong>Authentication tests</strong></summary>
+
+- Registration and login
+- Invalid password rejection
+- Authenticated user profile
+- Expired access tokens
+- Refresh-token rotation
+- Refresh-token reuse rejection
+- Logout revocation
+- Role authorization
+- Public registration role restrictions
+
+</details>
+
+<details>
+<summary><strong>User and task tests</strong></summary>
+
+- User creation and retrieval
+- Invalid email handling
+- Duplicate-user validation
+- Pagination
+- Task CRUD operations
+- Filtering
+- Invalid/nonexistent records
+- Database relationships
+
+</details>
+
+<details>
+<summary><strong>Curriculum tests</strong></summary>
+
+- Public grade listing
+- Hierarchical read endpoints
+- Consistent pagination
+- Pagination validation
+- Admin CRUD operations
+- Student access restrictions
+- Required-field validation
+- Invalid foreign-key relationships
+- Book/chapter relationship validation
+- Unpublished-book visibility restrictions
+
+</details>
+
+## Latest verified results
+
+| Check | Result |
 |---|---|
-| User registration and login | Successful registration and authentication |
-| Incorrect password | HTTP 401 |
-| Authenticated profile | HTTP 200 |
-| Expired access token | HTTP 401 |
-| Refresh-token rotation | New token issued |
-| Reuse of rotated token | HTTP 401 |
-| Logout revocation | HTTP 204 |
-| Reuse of revoked token | HTTP 401 |
-| Student accessing admin endpoint | HTTP 403 |
-| Parent accessing parent endpoint | HTTP 200 |
-| Public admin registration attempt | HTTP 422 |
+| Pytest | 47 passed |
+| Ruff | Passed |
+| GitHub Actions | Both checks passed |
+| Curriculum PR | Merged |
 
-The existing health, user, and task tests are also retained.
+---
 
-### Latest Local Test Results
+# Continuous Integration
 
-The latest verified local run reported:
+GitHub Actions automatically runs checks for pushes to `main` and pull requests targeting `main`.
 
-- **26 tests passed**
-- No test failures.
-- Ruff linting passed.
+Workflow:
 
-These results describe the local test run; the GitHub Actions result should be checked separately after pushing the changes.
+```text
+.github/workflows/ci.yml
+```
 
-## 15. Code Quality
+### CI jobs
 
-Ruff is used for linting and import checks.
+```mermaid
+flowchart LR
+    Trigger["Push / Pull Request"]
+    Trigger --> Ruff["Ruff Linting"]
+    Trigger --> Tests["Pytest"]
+    Ruff --> Result["CI Results"]
+    Tests --> Result
+```
 
-Run:
+| Job | Description |
+|---|---|
+| Ruff | Linting and import checks |
+| Pytest | Automated application tests |
+
+### Run checks locally
 
 ```bash
 ruff check .
-```
-
-Format the project:
-
-```bash
-ruff format .
-```
-
-Validate Docker Compose configuration:
-
-```bash
+pytest -v
 docker compose config -q
 ```
 
-Check the current migration:
+---
 
-```bash
-docker compose exec api alembic current
-```
+# Security
 
-## 16. Continuous Integration
+Security practices implemented in the project:
 
-GitHub Actions runs automated checks for pushes to `main` and pull requests targeting `main`.
-
-Workflow location:
-
-`.github/workflows/ci.yml`
-
-The pipeline uses Python 3.12 and contains two jobs:
-
-### Ruff Linting
-
-- Checks out the repository.
-- Sets up Python 3.12.
-- Installs dependencies.
-- Runs `ruff check .`.
-
-### Pytest
-
-- Checks out the repository.
-- Sets up Python 3.12.
-- Installs dependencies.
-- Runs `pytest -v`.
-
-Workflow execution results are available under the repository's **Actions** tab.
-
-## 17. Known Limitations
-
-- Existing legacy user accounts have nullable `password_hash` values. They require a separate credential-enrollment or password-reset process before they can authenticate.
-- Access JWTs are not invalidated immediately on logout; they remain valid until expiration. Refresh-token revocation prevents renewal.
-- The web interface is a basic demonstration and is not intended for production deployment.
-- The API does not currently implement email verification, password-reset workflows, or rate limiting.
-- The local CI workflow runs linting and automated tests; it does not currently build and run the Docker services.
-
-## 18. Repository and Documentation
-
-**GitHub Repository:**  
-https://github.com/AMAN-AJWA-FATIMA/Backend
-
-**API Documentation:**  
-http://localhost:8000/docs
-
-**Alternative API Documentation:**  
-http://localhost:8000/redoc
-
-The documentation endpoints are available when the application is running.
+- Argon2id password hashing
+- JWT signature and expiration validation
+- Short-lived access tokens
+- Refresh-token rotation
+- Refresh-token revocation
+- SHA-256 digest storage for refresh tokens
+- Role-based access control
+- Restricted administrative operations
+- Pydantic request validation
+- Environment-based secret configuration
+- Public registration restricted to allowed roles
 
 ---
+
+# Known Limitations
+
+- Access JWTs remain valid until expiration after logout; immediate access-token revocation is not implemented.
+- Legacy users with no password hash require credential provisioning before they can authenticate.
+- Email verification is not implemented.
+- Password-reset workflows are not implemented.
+- Rate limiting is not currently implemented.
+- The included web interface is a demonstration frontend, not a production frontend.
+- CI currently runs linting and tests; it does not build and launch the complete Docker stack.
+
+---
+
+# Development Workflow
+
+```mermaid
+flowchart TD
+    A["Create Feature Branch"] --> B["Implement Feature"]
+    B --> C["Add / Update Tests"]
+    C --> D["Run Ruff"]
+    D --> E["Run Pytest"]
+    E --> F["Commit Changes"]
+    F --> G["Push Branch"]
+    G --> H["Open Pull Request"]
+    H --> I["GitHub Actions Checks"]
+    I --> J["Review & Merge"]
+```
+
+### Recommended local workflow
+
+```bash
+# Create a feature branch
+git switch -c feature/your-feature
+
+# Implement changes
+
+# Run quality checks
+ruff check .
+pytest -v
+
+# Review changes
+git diff
+git diff --check
+
+# Commit
+git add .
+git commit -m "feat: describe your feature"
+
+# Push
+git push -u origin feature/your-feature
+```
+
+Open a pull request against `main` and ensure CI passes before merging.
+
+---
+
+## Repository
+
+**GitHub:** [AMAN-AJWA-FATIMA/Backend](https://github.com/AMAN-AJWA-FATIMA/Backend)
+
+**Stack:** Python · FastAPI · PostgreSQL · SQLAlchemy · Alembic · Docker · Pytest · GitHub Actions
+
+---
+
