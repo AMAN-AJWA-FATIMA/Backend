@@ -4,7 +4,17 @@ from sqlalchemy import engine_from_config, pool
 
 from alembic import context
 from app.core.database import DATABASE_URL, Base
-from app.models import RefreshToken, Task, User  # noqa: F401
+from app.models import (  # noqa: F401
+    Book,
+    Chapter,
+    Grade,
+    Page,
+    RefreshToken,
+    Subject,
+    Task,
+    Topic,
+    User,
+)
 
 config = context.config
 if config.config_file_name is not None:
