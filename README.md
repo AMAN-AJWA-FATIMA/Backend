@@ -426,3 +426,4 @@ Backend/
 <p align="center">
   <sub>Built with FastAPI, PostgreSQL, and Python.</sub>
 </p>
+
