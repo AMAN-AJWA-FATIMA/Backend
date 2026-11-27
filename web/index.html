@@ -1,291 +1,407 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Task Management | Account Portal</title>
-  <script>
-    (function () {
-      var t = null;
-      try { t = localStorage.getItem("theme"); } catch (e) {}
-      if (t !== "light" && t !== "dark") {
-        t = window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-      }
-      document.documentElement.setAttribute("data-theme", t);
-    })();
-  </script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      color-scheme: light;
-      --bg: #eef3ee;
-      --surface: #fbfdfb;
-      --ink: #1f2a24;
-      --muted: #66756c;
-      --line: #d9e3db;
-      --plum: #7a2e6b;
-      --plum-dark: #5f2253;
-      --sage: #2f6f5e;
-      --blush: #f3d9e6;
-      --mint: #cfe8dc;
-      --code-bg: #2a1a27;
-      --code-ink: #f4e6ef;
-      --heading: #5f2253;
-      --plum-hover: #5f2253;
-      --field: #ffffff;
-      --card-shadow: 0 1px 0 #fff inset, 0 18px 40px -26px rgba(95, 34, 83, .35);
-      font-family: "DM Sans", system-ui, sans-serif;
-    }
-    :root[data-theme="dark"] {
-      color-scheme: dark;
-      --bg: #141a16;
-      --surface: #1d2520;
-      --ink: #e7efe9;
-      --muted: #9aaba1;
-      --line: #2f3b34;
-      --plum: #a8478f;
-      --plum-hover: #bd58a5;
-      --sage: #7fc4ad;
-      --blush: #3a2236;
-      --mint: #1f3a31;
-      --code-bg: #0e0b0e;
-      --heading: #eab4dc;
-      --field: #151c18;
-      --card-shadow: 0 1px 0 rgba(255,255,255,.04) inset, 0 18px 40px -26px rgba(0, 0, 0, .8);
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0; color: var(--ink); min-height: 100vh;
-      background:
-        radial-gradient(520px 380px at 8% 6%, var(--blush), transparent 70%),
-        radial-gradient(560px 420px at 94% 12%, var(--mint), transparent 70%),
-        var(--bg);
-      background-attachment: fixed;
-    }
-    main { max-width: 800px; margin: 0 auto; padding: 56px 24px 64px; }
-    h1 {
-      font-family: "Fraunces", Georgia, serif; font-weight: 600;
-      font-size: clamp(2.2rem, 6vw, 3.2rem); letter-spacing: -0.02em;
-      margin: 0 0 8px; color: var(--heading);
-    }
-    h2 { font-family: "Fraunces", Georgia, serif; font-weight: 500; font-size: 1.35rem; margin: 0 0 6px; }
-    .muted { color: var(--muted); margin: 0 0 18px; max-width: 52ch; line-height: 1.55; }
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Account Portal | Student & Family Portal</title>
+<script>
+(function () {
+  var t = null;
+  try { t = localStorage.getItem("theme"); } catch (e) {}
+  if (t !== "light" && t !== "dark") {
+    t = window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  }
+  document.documentElement.setAttribute("data-theme", t);
+})();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet">
+<style>
+:root {
+  color-scheme: light;
+  --bg: #eef3ee; --surface: #fbfdfb; --ink: #1f2a24; --muted: #66756c; --line: #d9e3db;
+  --plum: #7a2e6b; --plum-hover: #5f2253; --sage: #2f6f5e; --blush: #f3d9e6; --mint: #cfe8dc;
+  --code-bg: #2a1a27; --code-ink: #f4e6ef; --heading: #5f2253; --accent-ink: #7a2e6b;
+  --field: #ffffff; --danger: #b33a45; --warn: #9a6720;
+  --card-shadow: 0 1px 0 #fff inset, 0 18px 40px -26px rgba(95, 34, 83, .35);
+  font-family: "DM Sans", system-ui, sans-serif;
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #141a16; --surface: #1d2520; --ink: #e7efe9; --muted: #9aaba1; --line: #2f3b34;
+  --plum: #a8478f; --plum-hover: #bd58a5; --sage: #7fc4ad; --blush: #3a2236; --mint: #1f3a31;
+  --code-bg: #0e0b0e; --heading: #eab4dc; --accent-ink: #eab4dc;
+  --field: #151c18; --danger: #e28b92; --warn: #d8b272;
+  --card-shadow: 0 1px 0 rgba(255,255,255,.04) inset, 0 18px 40px -26px rgba(0, 0, 0, .8);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; color: var(--ink); min-height: 100vh;
+  background:
+    radial-gradient(520px 380px at 8% 6%, var(--blush), transparent 70%),
+    radial-gradient(560px 420px at 94% 12%, var(--mint), transparent 70%),
+    var(--bg);
+  background-attachment: fixed;
+}
+button, input, select, textarea { font: inherit; }
+button { cursor: pointer; }
+a { color: var(--sage); }
+h1, h2, h3, h4 { font-family: "Fraunces", Georgia, serif; }
 
-    #status {
-      min-height: 44px; margin: 0 0 18px; padding: 11px 16px;
-      border-radius: 999px; background: var(--surface); border: 1px solid var(--line);
-      color: var(--sage); font-weight: 500;
-    }
-    #status:empty { visibility: hidden; }
+.shell { max-width: 1240px; margin: 0 auto; padding: 40px 24px 60px; }
+.hidden { display: none !important; }
 
-    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-    .panel {
-      background: var(--surface); border: 1px solid var(--line);
-      border-radius: 22px; padding: 26px; margin: 0 0 20px;
-      box-shadow: var(--card-shadow);
-    }
-    .grid .panel { margin: 0; }
-    .panel:first-of-type { border-top: 4px solid var(--plum); }
-    .grid .panel:nth-child(2) { border-top: 4px solid var(--sage); }
+/* theme toggle */
+.theme-toggle {
+  position: fixed; top: 16px; right: 16px; z-index: 5;
+  padding: 9px 16px; border-radius: 999px; font-size: .9rem; font-weight: 500;
+  background: var(--surface); color: var(--ink); border: 1px solid var(--line);
+  transition: background-color .15s, border-color .15s;
+}
+.theme-toggle:hover { background: var(--mint); }
 
-    label { display: block; font-weight: 500; font-size: .92rem; margin: 14px 0 6px; }
-    input, select, button {
-      width: 100%; padding: 12px 14px; border-radius: 12px;
-      border: 1px solid var(--line); font: inherit; color: inherit; background: var(--field);
-      transition: border-color .15s, box-shadow .15s, background-color .15s, transform .1s;
-    }
-    input:hover, select:hover { border-color: #b9c9be; }
-    input:focus-visible, select:focus-visible, button:focus-visible {
-      outline: none; border-color: var(--plum); box-shadow: 0 0 0 4px rgba(122, 46, 107, .18);
-    }
-    button {
-      background: var(--plum); color: #fff; border: 0; font-weight: 600;
-      cursor: pointer; margin-top: 16px;
-    }
-    button:hover { background: var(--plum-hover); }
-    button:active { transform: translateY(1px); }
-    button.secondary {
-      background: transparent; color: var(--sage); border: 1.5px solid var(--sage); margin-top: 10px;
-    }
-    button.secondary:hover { background: var(--mint); }
-    button:disabled { opacity: .6; cursor: wait; }
+/* top bar */
+.topbar { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin-bottom: 26px; padding-right: 130px; }
+.brand { display: flex; align-items: center; gap: 12px; }
+.logo {
+  width: 46px; height: 46px; display: grid; place-items: center; border-radius: 15px;
+  background: var(--plum); color: #fff; font: 600 1.4rem "Fraunces", Georgia, serif;
+}
+.brand-title { font: 600 1.45rem "Fraunces", Georgia, serif; letter-spacing: -.02em; color: var(--heading); }
+.brand-sub { font-size: .8rem; color: var(--muted); margin-top: 2px; }
+.top-actions { display: flex; gap: 8px; align-items: center; }
 
-    #me-button, #admin-button, #parent-button { width: auto; padding-inline: 18px; margin: 14px 8px 0 0; }
+/* buttons */
+.btn {
+  padding: 11px 16px; border-radius: 12px; font-weight: 600;
+  background: transparent; color: var(--sage); border: 1.5px solid var(--sage);
+  transition: border-color .15s, box-shadow .15s, background-color .15s, transform .1s;
+}
+.btn:hover { background: var(--mint); }
+.btn:active { transform: translateY(1px); }
+.btn.primary { background: var(--plum); border-color: var(--plum); color: #fff; }
+.btn.primary:hover { background: var(--plum-hover); border-color: var(--plum-hover); }
+.btn.danger { color: var(--danger); border-color: var(--danger); }
+.btn.danger:hover { background: color-mix(in srgb, var(--danger) 12%, var(--surface)); }
+.btn.small { padding: 7px 12px; font-size: .85rem; }
+.btn:disabled { opacity: .55; cursor: not-allowed; }
+.btn:focus-visible, .nav-btn:focus-visible, .crumb:focus-visible, .theme-toggle:focus-visible,
+input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: none; border-color: var(--plum); box-shadow: 0 0 0 4px rgba(122, 46, 107, .18);
+}
 
-    pre {
-      white-space: pre-wrap; overflow-wrap: anywhere; margin: 18px 0 0;
-      background: var(--code-bg); color: var(--code-ink);
-      padding: 16px; border-radius: 14px; font-size: .88rem; line-height: 1.55;
-    }
+/* hero + status */
+.hero {
+  background: linear-gradient(115deg, var(--blush), var(--surface) 70%);
+  border: 1px solid var(--line); border-radius: 22px; padding: 28px 30px; margin-bottom: 22px;
+  display: flex; justify-content: space-between; align-items: center; gap: 20px;
+  box-shadow: var(--card-shadow);
+}
+.hero h1 { font-weight: 600; font-size: clamp(2rem, 5vw, 3rem); letter-spacing: -.02em; margin: 0 0 8px; color: var(--heading); }
+.hero p { color: var(--muted); margin: 0; max-width: 56ch; line-height: 1.55; }
+.hero-tag {
+  background: var(--surface); border: 1px solid var(--line); padding: 10px 16px; border-radius: 999px;
+  white-space: nowrap; color: var(--sage); font-weight: 600;
+}
+.status {
+  min-height: 24px; margin: 0 0 18px; padding: 11px 16px; border-radius: 999px;
+  background: var(--surface); border: 1px solid var(--line); color: var(--sage); font-weight: 500;
+}
+.status.error { color: var(--danger); border-color: var(--danger); }
+.status:empty { display: none; }
 
-    .theme-toggle {
-      position: fixed; top: 16px; right: 16px; z-index: 5;
-      width: auto; margin: 0; padding: 9px 16px; border-radius: 999px;
-      background: var(--surface); color: var(--ink); border: 1px solid var(--line);
-      font-weight: 500; font-size: .9rem;
-    }
-    .theme-toggle:hover { background: var(--mint); }
+/* layout */
+.layout { display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: 22px; }
+.sidebar {
+  position: sticky; top: 20px; align-self: start; background: var(--surface);
+  border: 1px solid var(--line); border-radius: 22px; padding: 12px; box-shadow: var(--card-shadow);
+}
+.nav-btn {
+  display: flex; width: 100%; align-items: center; gap: 10px; padding: 12px 14px; margin: 3px 0;
+  border: 1px solid transparent; border-radius: 12px; background: transparent; color: var(--muted);
+  text-align: left; font-weight: 500; transition: background-color .15s, color .15s;
+}
+.nav-btn:hover { background: var(--mint); color: var(--sage); }
+.nav-btn.active { background: var(--mint); color: var(--sage); font-weight: 600; }
+.nav-icon { width: 22px; text-align: center; }
+.main-area { min-width: 0; }
+.section { display: none; }
+.section.active { display: block; }
+.section-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 14px; margin: 0 0 18px; }
+.section-head h2 { font-weight: 500; font-size: 1.7rem; margin: 0 0 5px; letter-spacing: -.01em; }
+.section-head p { margin: 0; color: var(--muted); line-height: 1.5; }
 
-    @media (max-width: 640px) {
-      main { padding: 32px 14px 40px; }
-      .grid { grid-template-columns: 1fr; }
-      .panel { padding: 22px; }
-    }
-    @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
-  </style>
+/* cards */
+.cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.card {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 22px; padding: 24px;
+  box-shadow: var(--card-shadow); min-width: 0;
+}
+.card h3 { font-weight: 500; font-size: 1.25rem; margin: 0 0 6px; }
+.card p { color: var(--muted); line-height: 1.5; margin: 0 0 14px; }
+.card.full { grid-column: 1 / -1; }
+.cards .card:nth-child(odd) { border-top: 4px solid var(--plum); }
+.cards .card:nth-child(even) { border-top: 4px solid var(--sage); }
+.cards .card.full { border-top: 1px solid var(--line); }
+
+/* forms */
+.field-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.field { min-width: 0; }
+.field label { display: block; font-size: .92rem; font-weight: 500; margin: 0 0 6px; }
+input, select, textarea {
+  width: 100%; border: 1px solid var(--line); background: var(--field); color: var(--ink);
+  padding: 12px 14px; border-radius: 12px; outline: none;
+  transition: border-color .15s, box-shadow .15s;
+}
+input:hover, select:hover, textarea:hover { border-color: #b9c9be; }
+textarea { min-height: 110px; resize: vertical; }
+.actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+.stack { display: grid; gap: 14px; }
+.toolbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.mono { font-family: ui-monospace, monospace; letter-spacing: .04em; }
+.note { color: var(--muted); font-size: .88rem; line-height: 1.5; }
+.rule { border-top: 1px solid var(--line); margin: 16px 0; }
+
+/* lists */
+.list { display: grid; gap: 10px; }
+.item {
+  display: flex; justify-content: space-between; align-items: center; gap: 12px;
+  border: 1px solid var(--line); border-radius: 14px; padding: 13px 14px; background: var(--field);
+}
+.item-main { min-width: 0; }
+.item-title { font-weight: 600; overflow-wrap: anywhere; }
+.item-meta { font-size: .85rem; color: var(--muted); margin-top: 3px; }
+.pill {
+  display: inline-flex; align-items: center; border-radius: 999px; padding: 5px 11px;
+  font-size: .76rem; font-weight: 600; background: var(--mint); color: var(--sage);
+}
+.pill.purple { background: var(--blush); color: var(--accent-ink); }
+.pill.warning { background: color-mix(in srgb, var(--warn) 14%, var(--surface)); color: var(--warn); }
+.empty { padding: 22px; border: 1px dashed var(--line); border-radius: 14px; color: var(--muted); text-align: center; }
+.json-output {
+  background: var(--code-bg); color: var(--code-ink); border-radius: 14px; padding: 16px;
+  overflow: auto; max-height: 340px; font: .88rem/1.55 ui-monospace, monospace; white-space: pre-wrap; overflow-wrap: anywhere;
+}
+.code-display {
+  font: 600 1.7rem "Fraunces", Georgia, serif; letter-spacing: .22em; padding: 14px 18px;
+  border: 1.5px dashed var(--plum); border-radius: 14px; background: var(--blush);
+  display: inline-block; color: var(--accent-ink);
+}
+
+/* curriculum */
+.curriculum-path { display: flex; gap: 7px; flex-wrap: wrap; margin: 0 0 14px; }
+.crumb {
+  border: 1px solid var(--line); background: var(--surface); color: var(--muted);
+  border-radius: 999px; padding: 7px 14px; font-size: .85rem;
+}
+.crumb.active { color: var(--plum); border-color: var(--plum); font-weight: 600; background: var(--blush); }
+:root[data-theme="dark"] .crumb.active { color: var(--accent-ink); }
+.book-row, .curr-item { border: 1px solid var(--line); border-radius: 14px; padding: 14px; background: var(--surface); margin: 8px 0; }
+.curr-item h4 { margin: 0 0 6px; font-weight: 500; font-size: 1.1rem; }
+.curr-item p { color: var(--muted); margin: 0 0 8px; line-height: 1.45; }
+.curr-item img { width: 100%; max-width: 400px; border-radius: 12px; display: block; margin: 8px 0; }
+.pagination { display: flex; justify-content: space-between; align-items: center; margin-top: 14px; color: var(--muted); }
+
+/* auth */
+.auth-wrap { max-width: 860px; margin: 28px auto; }
+.auth-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.auth-card {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 22px; padding: 26px;
+  box-shadow: var(--card-shadow);
+}
+.auth-grid .auth-card:first-child { border-top: 4px solid var(--plum); }
+.auth-grid .auth-card:nth-child(2) { border-top: 4px solid var(--sage); }
+.auth-card h2 { font-weight: 500; font-size: 1.4rem; margin: 0 0 14px; }
+
+footer { margin-top: 28px; text-align: center; color: var(--muted); font-size: .85rem; }
+
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; }
+  .sidebar { position: static; display: flex; overflow: auto; gap: 4px; }
+  .nav-btn { width: auto; white-space: nowrap; }
+  .cards { grid-template-columns: 1fr; }
+  .hero { align-items: flex-start; flex-direction: column; }
+  .hero-tag { white-space: normal; }
+}
+@media (max-width: 600px) {
+  .shell { padding: 64px 12px 36px; }
+  .topbar { padding-right: 0; align-items: flex-start; }
+  .brand-sub { display: none; }
+  .auth-grid, .field-grid { grid-template-columns: 1fr; }
+  .hero { padding: 22px; }
+  .section-head { align-items: flex-start; flex-direction: column; }
+  .sidebar { padding: 6px; }
+  .nav-btn { padding: 10px; }
+  .item { align-items: flex-start; flex-direction: column; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
 </head>
 <body>
-<button id="theme-toggle" class="theme-toggle" type="button" aria-pressed="false">Dark mode</button>
-<main>
-  <h1>Account Portal</h1>
-
-  <p id="status" role="status" aria-live="polite"></p>
-
-  <div class="grid">
-    <section class="panel">
-      <h2>Register</h2>
-      <form id="register-form">
-        <label for="register-name">Full name</label>
-        <input id="register-name" required maxlength="100">
-        <label for="register-email">Email</label>
-        <input id="register-email" type="email" required>
-        <label for="register-password">Password (minimum 8 characters)</label>
-        <input id="register-password" type="password" minlength="8" required autocomplete="new-password">
-        <label for="register-role">Role</label>
-        <select id="register-role"><option value="student">Student</option><option value="parent">Parent</option></select>
-        <button type="submit">Create account</button>
-      </form>
-    </section>
-
-    <section class="panel">
-      <h2>Login</h2>
-      <form id="login-form">
-        <label for="login-email">Email</label>
-        <input id="login-email" type="email" required autocomplete="username">
-        <label for="login-password">Password</label>
-        <input id="login-password" type="password" required autocomplete="current-password">
-        <button type="submit">Login</button>
-      </form>
-      <button id="refresh-button" class="secondary" type="button">Refresh access token</button>
-      <button id="logout-button" class="secondary" type="button">Logout</button>
-    </section>
+<button id="themeBtn" class="theme-toggle" type="button" aria-pressed="false">Dark mode</button>
+<div class="shell">
+<header class="topbar">
+  <div class="brand"><div class="logo">A</div><div><div class="brand-title">Account Portal</div><div class="brand-sub"></div></div></div>
+  <div class="top-actions"><button class="btn hidden" id="logoutBtn">Logout</button></div>
+</header>
+<div id="status" class="status" role="status" aria-live="polite"></div>
+<div id="authView" class="auth-wrap">
+  <div class="auth-grid">
+    <section class="auth-card"><h2>Create account</h2><form id="registerForm" class="stack">
+      <div class="field"><label for="regName">Full name</label><input id="regName" required maxlength="100"></div>
+      <div class="field"><label for="regEmail">Email address</label><input id="regEmail" type="email" required></div>
+      <div class="field"><label for="regPassword">Password (8–128 characters)</label><input id="regPassword" type="password" minlength="8" maxlength="128" required autocomplete="new-password"></div>
+      <div class="field"><label for="regRole">Account type</label><select id="regRole"><option value="student">Student</option><option value="parent">Parent / Guardian</option></select></div>
+      <button class="btn primary" type="submit">Create account</button>
+    </form></section>
+    <section class="auth-card"><h2>Welcome back</h2><form id="loginForm" class="stack">
+      <div class="field"><label for="loginEmail">Email address</label><input id="loginEmail" type="email" required autocomplete="username"></div>
+      <div class="field"><label for="loginPassword">Password</label><input id="loginPassword" type="password" required autocomplete="current-password"></div>
+      <button class="btn primary" type="submit">Sign in</button>
+    </form></section>
   </div>
-
-  <section class="panel" style="margin-top:20px">
-    <h2>Current account</h2>
-    <button id="me-button" type="button">Load my profile</button>
-    <button id="admin-button" class="secondary" type="button">Try admin endpoint</button>
-    <button id="parent-button" class="secondary" type="button">Try parent endpoint</button>
-    <pre id="output">Not authenticated.</pre>
-  </section>
-</main>
+</div>
+<div id="appView" class="hidden">
+  <div class="hero"><div><h1 id="welcome">Dashboard</h1><p id="roleDescription">Your account workspace.</p></div><div id="accountPill" class="hero-tag">Signed in</div></div>
+  <div class="layout">
+    <nav class="sidebar" aria-label="Portal navigation">
+      <button class="nav-btn active" data-section="overview"><span class="nav-icon">⌂</span><span class="nav-label">Overview</span></button>
+      <button class="nav-btn" data-section="profile"><span class="nav-icon">◉</span><span class="nav-label">My profile</span></button>
+      <button class="nav-btn" id="familyNav" data-section="family"><span class="nav-icon">♧</span><span class="nav-label">Family linking</span></button>
+      <button class="nav-btn" data-section="curriculum"><span class="nav-icon">▤</span><span class="nav-label">Curriculum</span></button>
+      <button class="nav-btn" id="tasksNav" data-section="tasks"><span class="nav-icon">✓</span><span class="nav-label">Tasks</span></button>
+      <button class="nav-btn hidden" id="adminNav" data-section="admin"><span class="nav-icon">⚙</span><span class="nav-label">Admin tools</span></button>
+      <button class="nav-btn" data-section="security"><span class="nav-icon">⌑</span><span class="nav-label">Security & API</span></button>
+    </nav>
+    <main class="main-area">
+      <section class="section active" id="section-overview">
+        <div class="section-head"><div><h2>Overview</h2><p>Quick access to the features available for your role.</p></div><span class="pill" id="roleBadge"></span></div>
+        <div class="cards">
+          <article class="card"><h3>Authentication</h3><p>Register, login, token refresh, logout and account details.</p><span class="pill">15 min access • 14 day refresh</span></article>
+          <article class="card"><h3>Curriculum</h3><p>Browse published learning materials through grade, subject, book, chapter and page.</p><span class="pill">Public read • Admin CRUD</span></article>
+          <article class="card"><h3>Family</h3><p>Student invite codes, parent linking, child access checks and consent record.</p><span class="pill purple">6-character • 48 hours</span></article>
+          <article class="card"><h3>Authorization</h3><p>Role-protected endpoints demonstrate Student, Parent and Admin permissions.</p><span class="pill">403 on disallowed roles</span></article>
+        </div>
+      </section>
+      <section class="section" id="section-profile">
+        <div class="section-head"><div><h2>My profile</h2><p>Profile fields and account details are saved through the API.</p></div></div>
+        <div class="cards">
+          <article class="card full" id="studentProfileCard"><h3>Student profile</h3><p>Name, grade, optional school and exam date, language and date of birth.</p>
+            <form id="studentProfileForm" class="stack"><div class="field-grid">
+              <div class="field"><label for="studentName">Student name</label><input id="studentName" required></div>
+              <div class="field"><label for="studentGrade">Grade</label><select id="studentGrade" required><option value="">Load grades…</option></select></div>
+              <div class="field"><label for="studentSchool">School (optional)</label><input id="studentSchool"></div>
+              <div class="field"><label for="studentExam">Exam date (optional)</label><input id="studentExam" type="date"></div>
+              <div class="field"><label for="studentDob">Date of birth (needed for consent age check)</label><input id="studentDob" type="date"></div>
+              <div class="field"><label for="studentLanguage">Preferred language</label><select id="studentLanguage"><option>English</option><option>Urdu</option></select></div>
+            </div><div class="actions"><button class="btn primary" type="submit">Save student profile</button><button class="btn" type="button" id="loadStudentProfile">Reload profile</button></div></form>
+            <div id="studentProfileState" class="note"></div>
+          </article>
+          <article class="card full hidden" id="parentProfileCard"><h3>Parent / guardian profile</h3><p>Name and optional phone number.</p><form id="parentProfileForm" class="stack"><div class="field-grid"><div class="field"><label for="parentName">Parent name</label><input id="parentName" required></div><div class="field"><label for="parentPhone">Phone (optional)</label><input id="parentPhone" type="tel"></div></div><div class="actions"><button class="btn primary" type="submit">Save parent profile</button><button class="btn" type="button" id="loadParentProfile">Reload profile</button></div></form><div id="parentProfileState" class="note"></div></article>
+          <article class="card full"><h3>Account information</h3><div id="accountDetails" class="note">Loading account details…</div></article>
+        </div>
+      </section>
+      <section class="section" id="section-family">
+        <div class="section-head"><div><h2>Family linking</h2><p>Securely connect parent and student accounts using invitation codes.</p></div></div>
+        <div class="cards">
+          <article class="card" id="inviteCard"><h3>Student: create parent invite</h3><p>Generate a one-time, 6-character code. It expires after 48 hours.</p><button class="btn primary" id="generateInvite">Generate invite code</button><div id="inviteResult" class="stack" style="margin-top:14px"></div></article>
+          <article class="card" id="linkCard"><h3>Parent: link a student</h3><p>Enter the code shared by a student. A parent account can link multiple children.</p><form id="linkForm" class="stack"><div class="field"><label for="inviteCode">6-character invite code</label><input id="inviteCode" minlength="6" maxlength="6" class="mono" required autocomplete="off"></div><button class="btn primary" type="submit">Link child</button></form></article>
+          <article class="card full" id="childrenCard"><h3>Linked children</h3><div class="actions"><button class="btn" id="loadChildren">Refresh children list</button></div><div id="childrenList" class="list" style="margin-top:12px"><div class="empty">Use refresh to load linked children.</div></div></article>
+        </div>
+      </section>
+      <section class="section" id="section-curriculum">
+        <div class="section-head"><div><h2>Curriculum library</h2><p>Explore published books. Every list uses the same paging format.</p></div></div>
+        <div class="card full"><div class="curriculum-path" id="curriculumPath"></div><div class="toolbar"><button class="btn" id="curriculumHome">Grades</button><span id="curriculumPager" class="note"></span></div><div id="curriculumContent" class="list" style="margin-top:12px"><div class="empty">Load grades to begin exploring.</div></div></div>
+      </section>
+      <section class="section" id="section-tasks">
+        <div class="section-head"><div><h2>Tasks</h2><p>Create, list, update and delete your tasks. Administrators can view tasks for accounts.</p></div></div>
+        <div class="cards"><article class="card full"><h3>Create task</h3><form id="taskForm" class="stack"><div class="field-grid"><div class="field"><label for="taskTitle">Title</label><input id="taskTitle" maxlength="200" required></div><div class="field"><label for="taskDescription">Description</label><input id="taskDescription"></div></div><button class="btn primary" type="submit">Add task</button></form></article><article class="card full"><div class="section-head"><div><h3>Task list</h3><p id="taskHint">Tasks belonging to your account.</p></div><button class="btn" id="refreshTasks">Refresh</button></div><div id="taskList" class="list"><div class="empty">Refresh to load tasks.</div></div></article></div>
+      </section>
+      <section class="section" id="section-admin">
+        <div class="section-head"><div><h2>Admin tools</h2><p>Role-gated user list, curriculum create/update/delete, and endpoint authorization checks.</p></div></div>
+        <div class="cards">
+          <article class="card full"><h3>Curriculum management (Admin CRUD)</h3><p>Choose a resource and operation. Supply the request body matching the selected resource schema.</p><div class="field-grid"><div class="field"><label for="adminResource">Resource</label><select id="adminResource"><option>grades</option><option>subjects</option><option>books</option><option>chapters</option><option>pages</option><option>topics</option></select></div><div class="field"><label for="adminOperation">Operation</label><select id="adminOperation"><option value="create">Create</option><option value="update">Update</option><option value="delete">Delete</option></select></div><div class="field"><label for="adminRecordId">Record UUID (update/delete)</label><input id="adminRecordId" placeholder="Required for update/delete"></div></div><div class="field" style="margin-top:12px"><label for="adminBody">JSON request body (create/update)</label><textarea id="adminBody" spellcheck="false" placeholder='Example grade: {"name":"Grade 8"}'></textarea></div><div class="actions"><button class="btn primary" id="runAdminCrud">Execute admin operation</button></div><pre class="json-output" id="adminResult" style="margin-top:14px">Admin operation response will appear here.</pre></article>
+          <article class="card full"><div class="section-head"><div><h3>Registered accounts</h3><p>Admin-only user listing.</p></div><button class="btn" id="loadUsers">Load users</button></div><div id="usersList" class="list"><div class="empty">Load users to view registered accounts.</div></div></article>
+        </div>
+      </section>
+      <section class="section" id="section-security">
+        <div class="section-head"><div><h2>Security & API checks</h2><p>Run live authorization and authentication actions and inspect the result.</p></div></div>
+        <div class="cards">
+          <article class="card"><h3>Session controls</h3><p>Refresh rotates the refresh token. Logout revokes the current refresh token in the database.</p><div class="actions"><button class="btn primary" id="refreshTokenBtn">Refresh token</button><button class="btn danger" id="logoutInline">Logout / revoke</button></div></article>
+          <article class="card"><h3>Role checks</h3><p>Admin and parent demo endpoints. A disallowed role should receive HTTP 403.</p><div class="actions"><button class="btn" id="checkAdmin">Try admin endpoint</button><button class="btn" id="checkParent">Try parent endpoint</button></div></article>
+          <article class="card full"><h3>Live API response</h3><pre class="json-output" id="apiOutput">Responses will be shown here. Tokens are not displayed.</pre></article>
+          <article class="card full"><h3>Endpoints covered</h3><div class="list"><div class="item"><div class="item-main"><div class="item-title">Authentication</div><div class="item-meta">POST /auth/register • /auth/login • /auth/refresh • /auth/logout • GET /auth/me</div></div><span class="pill">JWT</span></div><div class="item"><div class="item-main"><div class="item-title">Profiles & family</div><div class="item-meta">Student/parent profile, invites, links, children and consent routes</div></div><span class="pill purple">Role restricted</span></div><div class="item"><div class="item-main"><div class="item-title">Curriculum</div><div class="item-meta">Public hierarchy reads and /curriculum/admin/{resource} CRUD</div></div><span class="pill">Paged</span></div><div class="item"><div class="item-main"><div class="item-title">Tasks & users</div><div class="item-meta">Task operations and admin user listing</div></div><span class="pill">RBAC</span></div></div></article>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+</div>
 <script>
-  const themeToggle = document.getElementById("theme-toggle");
-  function applyTheme(theme) {
-    document.documentElement.setAttribute("data-theme", theme);
-    themeToggle.textContent = theme === "dark" ? "Light mode" : "Dark mode";
-    themeToggle.setAttribute("aria-pressed", String(theme === "dark"));
-  }
-  applyTheme(document.documentElement.getAttribute("data-theme") || "light");
-  themeToggle.addEventListener("click", () => {
-    const next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
-    applyTheme(next);
-    try { localStorage.setItem("theme", next); } catch (e) {}
-  });
+const $=id=>document.getElementById(id);
+let accessToken=null,refreshToken=null,currentUser=null,gradesCache=[],currPage=1,currState={level:"grades",grade:null,subject:null,book:null,chapter:null};
+function setStatus(msg,error=false){$("status").textContent=msg||"";$("status").classList.toggle("error",!!error)}
+function showJSON(el,data){if(el)el.textContent=JSON.stringify(data,null,2)}
+let refreshing=null;
+function refreshSession(){if(!refreshing){refreshing=(async()=>{const res=await fetch("/auth/refresh",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({refresh_token:refreshToken})});const d=await res.json().catch(()=>({}));if(!res.ok)throw new Error(d.detail||"Session expired.");accessToken=d.access_token;refreshToken=d.refresh_token})().finally(()=>{refreshing=null})}return refreshing}
+async function api(path,opt={},auth=true,retry=true){const h={"Content-Type":"application/json",...(opt.headers||{})};if(auth&&accessToken)h.Authorization="Bearer "+accessToken;const res=await fetch(path,{...opt,headers:h});if(res.status===204)return null;if(res.status===401&&auth&&retry&&refreshToken){try{await refreshSession()}catch{clearSession();setStatus("Session expired. Please sign in again.",true);throw new Error("Session expired. Please sign in again.")}return api(path,opt,auth,false)}let d={};try{d=await res.json()}catch{}if(!res.ok){let detail=d.detail;if(Array.isArray(detail))detail=detail.map(x=>x.msg||JSON.stringify(x)).join("; ");throw new Error(detail||`HTTP ${res.status}`)}return d}
+function method(method,body){return{method,body:body===undefined?undefined:JSON.stringify(body)}}
+function roleIs(r){return currentUser?.role===r}
+function safe(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function displayAccount(u){$("accountDetails").innerHTML=`<div class="list"><div class="item"><div class="item-main"><div class="item-title">${safe(u.full_name)}</div><div class="item-meta">${safe(u.email)}</div></div><span class="pill">Account #${safe(u.id)}</span></div><div class="note">Account ID: ${safe(u.id)} • Created: ${safe(u.created_at||"—")}</div></div>`}
+function activate(section){document.querySelectorAll(".nav-btn").forEach(b=>b.classList.toggle("active",b.dataset.section===section));document.querySelectorAll(".section").forEach(s=>s.classList.toggle("active",s.id==="section-"+section))}
+document.querySelectorAll(".nav-btn").forEach(b=>b.addEventListener("click",()=>activate(b.dataset.section)));
+function applyTheme(t){document.documentElement.setAttribute("data-theme",t);$("themeBtn").textContent=t==="dark"?"Light mode":"Dark mode";$("themeBtn").setAttribute("aria-pressed",String(t==="dark"))}
+applyTheme(document.documentElement.getAttribute("data-theme")||"light");
+$("themeBtn").onclick=()=>{let t=document.documentElement.getAttribute("data-theme")==="dark"?"light":"dark";applyTheme(t);try{localStorage.setItem("theme",t)}catch(e){}};
+async function postLogin(data){accessToken=data.access_token;refreshToken=data.refresh_token;currentUser=await api("/auth/me");$("authView").classList.add("hidden");$("appView").classList.remove("hidden");$("logoutBtn").classList.remove("hidden");$("welcome").textContent=`Welcome, ${currentUser.full_name.split(" ")[0]}`;$("roleDescription").textContent=`Your ${currentUser.role} account workspace. Use the navigation to access features permitted by your role.`;$("accountPill").textContent=`${currentUser.role} • ${currentUser.email}`;$("roleBadge").textContent=currentUser.role;displayAccount(currentUser);roleConfig();activate("overview");showJSON($("apiOutput"),{message:"Authenticated. Token values intentionally hidden.",access_expires_in:data.expires_in,refresh_expires_in:data.refresh_expires_in});setStatus("Signed in successfully.");await initialLoads()}
+async function initialLoads(){if(roleIs("student")){await loadGrades().catch(()=>{});await loadStudentProfile().catch(()=>{})}if(roleIs("parent"))await loadParentProfile().catch(()=>{});if(roleIs("admin"))await loadUsers().catch(()=>{});await loadTasks().catch(()=>{})}
+function roleConfig(){let r=currentUser.role;$("studentProfileCard").classList.toggle("hidden",r!=="student");$("familyNav").classList.toggle("hidden",r==="admin");$("tasksNav").classList.toggle("hidden",r==="parent");$("parentProfileCard").classList.toggle("hidden",r!=="parent");$("inviteCard").classList.toggle("hidden",r!=="student");$("linkCard").classList.toggle("hidden",r!=="parent");$("childrenCard").classList.toggle("hidden",r!=="parent");$("adminNav").classList.toggle("hidden",r!=="admin");$("taskHint").textContent=r==="admin"?"Tasks visible to your admin account.":"Tasks belonging to your account."}
+$("registerForm").onsubmit=async e=>{e.preventDefault();try{let d=await api("/auth/register",method("POST",{full_name:$("regName").value,email:$("regEmail").value,password:$("regPassword").value,role:$("regRole").value}),false);setStatus(`Account created (${d.role}). Sign in to continue.`);e.target.reset()}catch(err){setStatus(err.message,true)}};
+$("loginForm").onsubmit=async e=>{e.preventDefault();try{let d=await api("/auth/login",method("POST",{email:$("loginEmail").value,password:$("loginPassword").value}),false);e.target.reset();await postLogin(d)}catch(err){if(!currentUser){accessToken=null;refreshToken=null}setStatus(err.message,true)}};
+function clearSession(){accessToken=null;refreshToken=null;currentUser=null;currPage=1;currState={level:"grades",grade:null,subject:null,book:null,chapter:null};["studentName","studentSchool","studentExam","studentDob","parentName","parentPhone","inviteCode","taskTitle","taskDescription","adminRecordId","adminBody"].forEach(id=>$(id).value="");$("studentGrade").value="";$("studentLanguage").value="English";$("studentProfileState").textContent="";$("parentProfileState").textContent="";$("accountDetails").textContent="Loading account details…";$("inviteResult").innerHTML="";$("childrenList").innerHTML='<div class="empty">Use refresh to load linked children.</div>';$("taskList").innerHTML='<div class="empty">Refresh to load tasks.</div>';$("usersList").innerHTML='<div class="empty">Load users to view registered accounts.</div>';$("curriculumContent").innerHTML='<div class="empty">Load grades to begin exploring.</div>';$("curriculumPager").textContent="";$("adminResult").textContent="Admin operation response will appear here.";$("apiOutput").textContent="Responses will be shown here. Tokens are not displayed.";$("appView").classList.add("hidden");$("authView").classList.remove("hidden");$("logoutBtn").classList.add("hidden")}
+async function logout(){let warn="";if(refreshToken){try{await api("/auth/logout",method("POST",{refresh_token:refreshToken}),false)}catch(e){warn=" The server could not revoke the token: "+e.message}}clearSession();setStatus("Logged out."+(warn||" Refresh token revoked."),!!warn)}
+$("logoutBtn").onclick=logout;$("logoutInline").onclick=logout;
+$("refreshTokenBtn").onclick=async()=>{if(!refreshToken)return setStatus("No active refresh token.",true);try{let d=await api("/auth/refresh",method("POST",{refresh_token:refreshToken}),false);accessToken=d.access_token;refreshToken=d.refresh_token;showJSON($("apiOutput"),{status:"Refresh token rotated",access_expires_in:d.expires_in,refresh_expires_in:d.refresh_expires_in,token_values:"hidden"});setStatus("Refresh successful. Previous refresh token is revoked.")}catch(e){setStatus(e.message,true)}};
+$("checkAdmin").onclick=async()=>{try{showJSON($("apiOutput"),await api("/admin/dashboard"));setStatus("Admin endpoint access granted.")}catch(e){showJSON($("apiOutput"),{error:e.message});setStatus(e.message,true)}};
+$("checkParent").onclick=async()=>{try{showJSON($("apiOutput"),await api("/parent/dashboard"));setStatus("Parent endpoint access granted.")}catch(e){showJSON($("apiOutput"),{error:e.message});setStatus(e.message,true)}};
 
-  const statusNode = document.getElementById("status");
-  const output = document.getElementById("output");
-  let accessToken = null;
-  let refreshToken = null;
+// Student profile
+async function loadGrades(){let d=await api("/curriculum/grades?page=1&page_size=100",{},false);gradesCache=d.items||[];$("studentGrade").innerHTML='<option value="">Choose grade</option>'+gradesCache.map(g=>`<option value="${safe(g.id)}">${safe(g.name)}</option>`).join("");}
+async function loadStudentProfile(){let p=await api("/profiles/student/me");$("studentName").value=p.name||"";$("studentGrade").value=p.grade_id||"";$("studentSchool").value=p.school||"";$("studentExam").value=p.exam_date||"";$("studentDob").value=p.date_of_birth||"";$("studentLanguage").value=p.preferred_language||"English";$("studentProfileState").textContent=`Profile loaded • Parent consent: ${p.parent_consent_given?"given":"not recorded"}${p.parent_consent_date?" • "+p.parent_consent_date:""}`;return p}
+$("loadStudentProfile").onclick=()=>loadStudentProfile().then(()=>setStatus("Student profile reloaded.")).catch(e=>setStatus(e.message,true));
+$("studentProfileForm").onsubmit=async e=>{e.preventDefault();try{let body={name:$("studentName").value,grade_id:$("studentGrade").value,school:$("studentSchool").value||null,exam_date:$("studentExam").value||null,date_of_birth:$("studentDob").value||null,preferred_language:$("studentLanguage").value};let existing;try{existing=await api("/profiles/student/me")}catch{}let d=await api(existing?"/profiles/student/me":"/profiles/student",method(existing?"PATCH":"POST",body));$("studentProfileState").textContent=`Saved profile for ${d.name}. Consent status: ${d.parent_consent_given?"given":"not recorded"}`;setStatus("Student profile saved.")}catch(e){setStatus(e.message,true)}};
 
-  function status(message) { statusNode.textContent = message; }
-  function show(data) { output.textContent = JSON.stringify(data, null, 2); }
+// Parent profile
+async function loadParentProfile(){let p=await api("/profiles/parent/me");$("parentName").value=p.name||"";$("parentPhone").value=p.phone||"";$("parentProfileState").textContent="Profile loaded.";return p}
+$("loadParentProfile").onclick=()=>loadParentProfile().then(()=>setStatus("Parent profile reloaded.")).catch(e=>setStatus(e.message,true));
+$("parentProfileForm").onsubmit=async e=>{e.preventDefault();try{let existing;try{existing=await api("/profiles/parent/me")}catch{}let body={name:$("parentName").value,phone:$("parentPhone").value||null};let d=await api(existing?"/profiles/parent/me":"/profiles/parent",method(existing?"PATCH":"POST",body));$("parentProfileState").textContent=`Saved profile for ${d.name}.`;setStatus("Parent profile saved.")}catch(e){setStatus(e.message,true)}};
 
-  async function request(path, options = {}, authenticated = false) {
-    const headers = { "Content-Type": "application/json", ...(options.headers || {}) };
-    if (authenticated && accessToken) headers.Authorization = `Bearer ${accessToken}`;
-    const response = await fetch(path, { ...options, headers });
-    if (response.status === 204) return null;
-    const data = await response.json().catch(() => ({}));
-    if (!response.ok) throw new Error(data.detail || `Request failed (${response.status})`);
-    return data;
-  }
+// Student invites and parent linking
+function isMinor(dob){if(!dob)return false;let d=new Date(dob+"T00:00:00"),n=new Date();let age=n.getFullYear()-d.getFullYear();if(n.getMonth()<d.getMonth()||(n.getMonth()===d.getMonth()&&n.getDate()<d.getDate()))age--;return age<18}
+$("generateInvite").onclick=async()=>{try{let d=await api("/family/invites",method("POST",{}));$("inviteResult").innerHTML=`<div class="code-display">${safe(d.code)}</div><div class="note">Expires: ${safe(d.expires_at)} • Share this code with your parent. It is single-use.</div><button class="btn small" id="copyInvite">Copy code</button>`;$("copyInvite").onclick=()=>navigator.clipboard?.writeText(d.code).then(()=>setStatus("Invite code copied.")).catch(()=>setStatus("Could not copy. Select the code and copy it manually.",true));setStatus("Invitation generated. Code shown only once.")}catch(e){setStatus(e.message,true)}};
+$("linkForm").onsubmit=async e=>{e.preventDefault();try{let d=await api("/family/link",method("POST",{code:$("inviteCode").value.toUpperCase()}));$("inviteCode").value="";setStatus(`Student linked successfully (student ID ${d.student_id}).`);await loadChildren()}catch(e){setStatus(e.message,true)}};
+$("loadChildren").onclick=()=>loadChildren().catch(e=>setStatus(e.message,true));
+async function loadChildren(){let gradeMap={};try{let gd=await api("/curriculum/grades?page=1&page_size=100",{},false);(gd.items||[]).forEach(g=>gradeMap[g.id]=g.name)}catch{}let children=await api("/family/children");if(!children.length){$("childrenList").innerHTML='<div class="empty">No children linked yet. Enter an invite code above to link a student.</div>';return}let rows=[];for(let c of children){let full;try{full=await api(`/family/children/${c.user_id}`)}catch(err){full={...c,read_error:err.message}}let dob=full.date_of_birth;let consent=full.parent_consent_given;let consentBtn=dob&&isMinor(dob)&&!consent?`<button class="btn small primary consent-btn" data-student="${safe(full.user_id)}">Record parent consent</button>`:consent?`<span class="pill">Consent saved ${safe(full.parent_consent_date||"")}</span>`:dob&&!isMinor(dob)?`<span class="pill">Consent not required (18+)</span>`:`<span class="pill warning">DOB required for consent check</span>`;rows.push(`<div class="item"><div class="item-main"><div class="item-title">${safe(full.name)} <span class="pill purple">${safe(full.preferred_language||"")}</span></div><div class="item-meta">Grade: ${safe(gradeMap[full.grade_id]||full.grade_id)} • School: ${safe(full.school||"—")} • DOB: ${safe(dob||"—")} • Exam: ${safe(full.exam_date||"—")}</div>${full.read_error?`<div class="item-meta">${safe(full.read_error)}</div>`:""}<div style="margin-top:8px">${consentBtn}</div></div></div>`)}$("childrenList").innerHTML=rows.join("");document.querySelectorAll(".consent-btn").forEach(b=>b.onclick=async()=>{try{let id=b.dataset.student;let d=await api(`/family/children/${id}/consent`,method("POST",{consent_given:true}));setStatus(`Consent recorded on ${d.consent_date}.`);await loadChildren()}catch(e){setStatus(e.message,true)}})}
 
-  document.getElementById("register-form").addEventListener("submit", async event => {
-    event.preventDefault();
-    try {
-      const data = await request("/auth/register", {
-        method: "POST",
-        body: JSON.stringify({
-          full_name: document.getElementById("register-name").value,
-          email: document.getElementById("register-email").value,
-          password: document.getElementById("register-password").value,
-          role: document.getElementById("register-role").value
-        })
-      });
-      status("Account created. Log in to continue.");
-      show(data);
-      event.target.reset();
-    } catch (error) { status(error.message); }
-  });
+// Curriculum explorer with page-by-page public hierarchy
+function pathRender(){let steps=[["grades","Grades"],["subjects","Subjects"],["books","Books"],["chapters","Chapters"],["pages","Pages"]];$("curriculumPath").innerHTML=steps.map(([level,label])=>`<button class="crumb ${currState.level===level?"active":""}" data-level="${level}">${label}</button>`).join("");document.querySelectorAll(".crumb").forEach(b=>b.onclick=()=>{let l=b.dataset.level;if(l==="grades"){currState={level:"grades",grade:null,subject:null,book:null,chapter:null}}else if(l==="subjects"&&currState.grade){currState.level=l;currState.subject=null;currState.book=null;currState.chapter=null}else if(l==="books"&&currState.subject){currState.level=l;currState.book=null;currState.chapter=null}else if(l==="chapters"&&currState.book){currState.level=l;currState.chapter=null}else if(l==="pages"&&currState.chapter){currState.level=l}else return;currPage=1;loadCurriculum()})}
+$("curriculumHome").onclick=()=>{currState={level:"grades",grade:null,subject:null,book:null,chapter:null};currPage=1;loadCurriculum()};
+async function loadCurriculum(){pathRender();let level=currState.level;let url=level==="grades"?"/curriculum/grades":level==="subjects"?`/curriculum/grades/${currState.grade.id}/subjects`:level==="books"?`/curriculum/subjects/${currState.subject.id}/books`:level==="chapters"?`/curriculum/books/${currState.book.id}/chapters`:`/curriculum/chapters/${currState.chapter.id}/pages`;try{let d=await api(url+`?page=${currPage}&page_size=20`,{},false);let items=d.items||[];$("curriculumPager").textContent=`Page ${d.page} of ${d.pages||0} • ${d.total} records`;if(!items.length){$("curriculumContent").innerHTML='<div class="empty">No records on this page. Admin may need to seed or publish content.</div>'}else if(level==="pages"){$("curriculumContent").innerHTML=items.map(p=>`<article class="curr-item"><h4>Page ${safe(p.page_no)}</h4>${p.image_url?`<img src="${safe(p.image_url)}" alt="Page ${safe(p.page_no)}">`:""}<p>${safe(p.text||"No page text available.")}</p></article>`).join("")}else{$("curriculumContent").innerHTML=items.map(x=>{let label=level==="grades"?x.name:level==="subjects"?x.name:level==="books"?x.title:`Chapter ${x.chapter_no}: ${x.title}`;let info=level==="books"?`<p>${safe(x.description||"")}</p><span class="pill">${x.published?"Published":"Not published"}</span>`:"";return `<article class="book-row"><div class="item"><div class="item-main"><div class="item-title">${safe(label)}</div>${info}</div><button class="btn small primary browse-btn" data-id="${safe(x.id)}">${level==="chapters"?"Open pages":"Explore"}</button></div></article>`}).join("");document.querySelectorAll(".browse-btn").forEach(b=>b.onclick=()=>{let item=items.find(x=>x.id===b.dataset.id);if(level==="grades"){currState.grade=item;currState.level="subjects"}else if(level==="subjects"){currState.subject=item;currState.level="books"}else if(level==="books"){currState.book=item;currState.level="chapters"}else if(level==="chapters"){currState.chapter=item;currState.level="pages"}currPage=1;loadCurriculum()})}let prev=document.createElement("button");prev.className="btn small";prev.textContent="Previous";prev.disabled=currPage<=1;prev.onclick=()=>{currPage--;loadCurriculum()};let next=document.createElement("button");next.className="btn small";next.textContent="Next";next.disabled=currPage>=d.pages;next.onclick=()=>{currPage++;loadCurriculum()};let pbar=document.createElement("div");pbar.className="pagination";pbar.append(prev,next);$("curriculumContent").append(pbar)}catch(e){$("curriculumContent").innerHTML=`<div class="empty">${safe(e.message)}</div>`;setStatus(e.message,true)}}
+document.querySelector('[data-section="curriculum"]').addEventListener("click",()=>loadCurriculum());
 
-  document.getElementById("login-form").addEventListener("submit", async event => {
-    event.preventDefault();
-    try {
-      const data = await request("/auth/login", {
-        method: "POST",
-        body: JSON.stringify({
-          email: document.getElementById("login-email").value,
-          password: document.getElementById("login-password").value
-        })
-      });
-      accessToken = data.access_token;
-      refreshToken = data.refresh_token;
-      status("Login successful.");
-      show({ token_type: data.token_type, expires_in: data.expires_in, message: "Tokens held in page memory only." });
-      event.target.reset();
-    } catch (error) { status(error.message); }
-  });
+// Tasks
+async function loadTasks(){let tasks=await api("/tasks/");if(!tasks.length){$("taskList").innerHTML='<div class="empty">No tasks found.</div>';return} $("taskList").innerHTML=tasks.map(t=>`<div class="item"><div class="item-main"><div class="item-title">${safe(t.title)} ${t.is_completed?'<span class="pill">Complete</span>':'<span class="pill warning">Open</span>'}</div><div class="item-meta">${safe(t.description||"No description")} • Task #${safe(t.id)}</div></div><div class="actions"><button class="btn small toggle-task" data-id="${safe(t.id)}" data-done="${t.is_completed}">${t.is_completed?"Reopen":"Complete"}</button><button class="btn small danger delete-task" data-id="${safe(t.id)}">Delete</button></div></div>`).join("");document.querySelectorAll(".toggle-task").forEach(b=>b.onclick=async()=>{try{await api(`/tasks/${b.dataset.id}`,method("PATCH",{is_completed:b.dataset.done!=="true"}));await loadTasks()}catch(e){setStatus(e.message,true)}});document.querySelectorAll(".delete-task").forEach(b=>b.onclick=async()=>{if(!confirm("Delete this task?"))return;try{await api(`/tasks/${b.dataset.id}`,method("DELETE"));await loadTasks()}catch(e){setStatus(e.message,true)}})}
+$("refreshTasks").onclick=()=>loadTasks().catch(e=>setStatus(e.message,true));
+$("taskForm").onsubmit=async e=>{e.preventDefault();try{await api("/tasks/",method("POST",{title:$("taskTitle").value,description:$("taskDescription").value||null,user_id:currentUser.id,is_completed:false}));e.target.reset();await loadTasks();setStatus("Task created.")}catch(e){setStatus(e.message,true)}};
 
-  document.getElementById("refresh-button").addEventListener("click", async () => {
-    if (!refreshToken) return status("Log in first.");
-    try {
-      const data = await request("/auth/refresh", {
-        method: "POST", body: JSON.stringify({ refresh_token: refreshToken })
-      });
-      accessToken = data.access_token;
-      refreshToken = data.refresh_token;
-      status("Tokens rotated successfully. Previous refresh token is revoked.");
-      show({ expires_in: data.expires_in, message: "New tokens held in page memory only." });
-    } catch (error) { status(error.message); }
-  });
-
-  document.getElementById("logout-button").addEventListener("click", async () => {
-    if (!refreshToken) return status("No active refresh token.");
-    try {
-      await request("/auth/logout", {
-        method: "POST", body: JSON.stringify({ refresh_token: refreshToken })
-      });
-      accessToken = null;
-      refreshToken = null;
-      status("Logged out. Refresh token revoked.");
-      show({ message: "Session ended." });
-    } catch (error) { status(error.message); }
-  });
-
-  document.getElementById("me-button").addEventListener("click", async () => {
-    try { show(await request("/auth/me", {}, true)); status("Profile loaded."); }
-    catch (error) { status(error.message); }
-  });
-
-  async function tryRole(path) {
-    try { show(await request(path, {}, true)); status("Access granted."); }
-    catch (error) { status(error.message); }
-  }
-  document.getElementById("admin-button").addEventListener("click", () => tryRole("/admin/dashboard"));
-  document.getElementById("parent-button").addEventListener("click", () => tryRole("/parent/dashboard"));
+// Admin CRUD and users
+$("adminOperation").onchange=()=>{$("adminBody").disabled=$("adminOperation").value==="delete";$("adminRecordId").disabled=$("adminOperation").value==="create"};
+$("adminOperation").onchange();
+$("runAdminCrud").onclick=async()=>{let r=$("adminResource").value,op=$("adminOperation").value,id=$("adminRecordId").value.trim(),body;try{if(op!=="delete"){body=JSON.parse($("adminBody").value||"{}")}if((op==="update"||op==="delete")&&!id)throw Error("Record UUID is required for update/delete");let url=`/curriculum/admin/${r}`+(op==="create"?"":`/${encodeURIComponent(id)}`);let d=await api(url,op==="delete"?method("DELETE"):method(op==="create"?"POST":"PATCH",body));showJSON($("adminResult"),d??{status:"deleted",resource:r,id});setStatus(`Admin ${op} completed.`)}catch(e){showJSON($("adminResult"),{error:e.message});setStatus(e.message,true)}};
+async function loadUsers(){let users=await api("/users/");$("usersList").innerHTML=users.length?users.map(u=>`<div class="item"><div class="item-main"><div class="item-title">${safe(u.full_name)}</div><div class="item-meta">${safe(u.email)} • ID ${safe(u.id)}</div></div><span class="pill">Account #${safe(u.id)}</span></div>`).join(""):'<div class="empty">No registered users.</div>'}
+$("loadUsers").onclick=()=>loadUsers().catch(e=>setStatus(e.message,true));
 </script>
 </body>
 </html>
