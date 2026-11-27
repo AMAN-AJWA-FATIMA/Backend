@@ -1,4 +1,3 @@
-
 from pathlib import Path
 
 from fastapi import FastAPI
@@ -6,7 +5,7 @@ from fastapi.openapi.utils import get_openapi
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
-from app.routers import auth, authorization_demo, curriculum, tasks, users
+from app.routers import auth, authorization_demo, curriculum, family, tasks, users
 from app.schemas import curriculum as curriculum_schemas
 
 app = FastAPI(
@@ -23,7 +22,7 @@ app.include_router(authorization_demo.router)
 app.include_router(users.router)
 app.include_router(tasks.router)
 app.include_router(curriculum.router)
-
+app.include_router(family.router)
 
 WEB_DIRECTORY = Path(__file__).resolve().parent.parent / "web"
 
@@ -70,21 +69,19 @@ def custom_openapi():
         "TopicUpdate": curriculum_schemas.TopicUpdate,
     }
 
-    component_schemas = openapi_schema.setdefault(
-        "components", {}
-    ).setdefault("schemas", {})
+    component_schemas = openapi_schema.setdefault("components", {}).setdefault(
+        "schemas", {}
+    )
 
     for name, model in {**create_schemas, **update_schemas}.items():
         component_schemas[name] = model.model_json_schema()
 
     create_one_of = [
-        {"$ref": f"#/components/schemas/{name}"}
-        for name in create_schemas
+        {"$ref": f"#/components/schemas/{name}"} for name in create_schemas
     ]
 
     update_one_of = [
-        {"$ref": f"#/components/schemas/{name}"}
-        for name in update_schemas
+        {"$ref": f"#/components/schemas/{name}"} for name in update_schemas
     ]
 
     paths = openapi_schema["paths"]
@@ -95,25 +92,13 @@ def custom_openapi():
             "Provide the request body matching the selected resource: "
             "grades, subjects, books, chapters, pages, or topics."
         ),
-        "content": {
-            "application/json": {
-                "schema": {"oneOf": create_one_of}
-            }
-        },
+        "content": {"application/json": {"schema": {"oneOf": create_one_of}}},
     }
 
-    paths["/curriculum/admin/{resource}/{record_id}"]["patch"][
-        "requestBody"
-    ] = {
+    paths["/curriculum/admin/{resource}/{record_id}"]["patch"]["requestBody"] = {
         "required": True,
-        "description": (
-            "Provide the fields to update for the selected resource."
-        ),
-        "content": {
-            "application/json": {
-                "schema": {"oneOf": update_one_of}
-            }
-        },
+        "description": ("Provide the fields to update for the selected resource."),
+        "content": {"application/json": {"schema": {"oneOf": update_one_of}}},
     }
 
     app.openapi_schema = openapi_schema
