@@ -12,7 +12,7 @@
 [![CI](https://github.com/AMAN-AJWA-FATIMA/Backend/actions/workflows/ci.yml/badge.svg)](https://github.com/AMAN-AJWA-FATIMA/Backend/actions/workflows/ci.yml)
 [![Tests](https://img.shields.io/badge/Tests-52_Passing-success)](https://github.com/AMAN-AJWA-FATIMA/Backend)
 
-**[Repository](https://github.com/AMAN-AJWA-FATIMA/Backend)** · **[Swagger UI](http://localhost:8000/docs)** · **[ReDoc](http://localhost:8000/redoc)** · **[Web App](http://localhost:8000/)**
+**[Swagger UI](http://localhost:8000/docs)** · **[ReDoc](http://localhost:8000/redoc)** · **[Web App](http://localhost:8000/)**
 
 </div>
 
@@ -21,25 +21,6 @@
 ## Overview
 
 A containerized REST API built with Python and FastAPI, featuring secure authentication, role-based authorization, task management, curriculum management, student and parent profiles, parent–child linking, and consent records. It uses PostgreSQL, SQLAlchemy, Alembic, automated tests, GitHub Actions, and a browser interface for interacting with application workflows.
-
-### Highlights
-
-- 🔐 JWT access tokens and rotating refresh tokens
-- 🛡️ Role-based access for students, parents, and administrators
-- 👤 Student and parent profile management
-- 👨‍👩‍👧 Six-character family invitation codes, valid for 48 hours
-- 🔗 Parent accounts can link multiple children
-- 🔒 Parent access restricted to linked students through reusable access checks
-- 🧾 Parental-consent date persistence for students under 18
-- 📋 Task CRUD, filtering, and pagination
-- 📚 Curriculum hierarchy: grades, subjects, books, chapters, pages, and topics
-- 📖 Public curriculum access restricted to published content
-- 🗄️ PostgreSQL 16 + SQLAlchemy 2
-- 🔄 Alembic migrations
-- 🐳 Docker Compose
-- 🧪 Pytest + HTTPX tests
-- ⚙️ GitHub Actions CI using Ruff and Pytest
-- 🖥️ Frontend for account, family, curriculum, task, and admin workflows
 
 ## Interactive Navigation
 
@@ -767,8 +748,6 @@ Open a pull request to `main`, review the changes, and merge after checks pass.
 ## Repository
 
 **GitHub:** [AMAN-AJWA-FATIMA/Backend](https://github.com/AMAN-AJWA-FATIMA/Backend)
-
-**Stack:** Python · FastAPI · PostgreSQL · SQLAlchemy · Alembic · Docker · Pytest · HTTPX · Ruff · GitHub Actions
 
 <div align="center">
 
